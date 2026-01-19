@@ -1,0 +1,108 @@
+.splitLayout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mapPanel {
+  flex: 1;
+  position: relative;
+  background-color: #0f1110;
+}
+
+.calcPanel {
+  width: 450px;
+  min-width: 400px;
+  position: relative;
+  z-index: 20;
+}
+
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: rgba(15, 17, 16, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--spacing-6);
+}
+
+.titleArea {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.propTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.propMeta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.statusBadge {
+    background-color: rgba(74, 222, 128, 0.1);
+    color: var(--primary-green);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.actions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.actionBtn {
+    background-color: #2a2d2c;
+    color: white;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.actionBtn.primary {
+    background-color: var(--primary-green);
+    color: #000;
+}
+
+.mapOverlayFilters {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.filterChip {
+    background-color: #181a19;
+    border: 1px solid #2a2d2c;
+    color: #9ca3af;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filterChip.active {
+    background-color: var(--primary-green);
+    color: #000;
+}

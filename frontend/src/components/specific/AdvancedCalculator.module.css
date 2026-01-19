@@ -1,0 +1,167 @@
+.panel {
+  background-color: #0f1110;
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.switchContainer {
+  display: flex;
+  background-color: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--spacing-6);
+}
+
+.switchOption {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.switchOption.active {
+    background-color: var(--primary-green);
+    color: #000;
+}
+
+.kpiRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--spacing-4);
+}
+
+.kpiCard {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-3);
+    border-radius: var(--radius-md);
+}
+
+.kpiLabel {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+}
+
+.kpiValue {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.kpiValueGreen {
+    color: var(--primary-green);
+}
+
+.scrollArea {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-6);
+}
+
+.section {
+    margin-bottom: var(--spacing-8);
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-4);
+}
+
+.sectionTitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.resetBtn {
+    color: var(--primary-green);
+    font-size: 0.75rem;
+}
+
+.inputRow {
+    margin-bottom: var(--spacing-4);
+}
+
+.fieldLabel {
+   display: flex;
+   justify-content: space-between;
+   font-size: 0.85rem;
+   color: var(--text-secondary);
+   margin-bottom: 8px;
+}
+
+.inputContainer {
+    position: relative;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+}
+
+.inputField {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    outline: none;
+    font-weight: 500;
+    /* padding-left: 12px; if needed */
+}
+
+.slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--bg-card);
+    border-radius: 2px;
+    margin-top: 12px;
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-green);
+    cursor: pointer;
+    border: 3px solid var(--bg-dark); /* creates a 'hole' effect or rim */
+}
+
+/* For list items in "Income & Expenses" section */
+.expenseRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.expenseVal {
+    font-weight: 500;
+    color: var(--text-primary);
+}

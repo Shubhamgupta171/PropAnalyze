@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PropAnalyze Architecture Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background-color: #121212;
+            padding: 40px;
+            max-width: 900px;
+            margin: auto;
+        }
+        h1, h2 { color: #64ffda; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .section { margin-bottom: 40px; background: #1e1e1e; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #333; }
+        th { background-color: #252525; color: #64ffda; }
+        code { background: #2d2d2d; padding: 2px 5px; border-radius: 4px; color: #f8f8f2; }
+        .mermaid { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; color: black; }
+        @media print {
+            body { background: white; color: black; padding: 20px; }
+            .section { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+            h1, h2 { color: #00796b; border-bottom-color: #00796b; }
+            th { background-color: #eee; color: black; }
+            .mermaid { border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <h1>PropAnalyze Architecture Overview</h1>
+    
+    <div class="section">
+        <h2>1. System Architecture</h2>
+        <p>A layered Node.js/Express architecture optimized for scalability and performance.</p>
+        <div class="mermaid">
+            graph TD
+                subgraph "Client Layer"
+                    Web["Web Frontend (Next.js/React)"]
+                end
+
+                subgraph "API Layer (Node.js/Express)"
+                    Router["Express Router"]
+                    Middlewares["Middlewares (Auth, Upload, Error)"]
+                    Controllers["Controllers (Handle Requests)"]
+                end
+
+                subgraph "Business Logic Layer"
+                    Services["Services (ROI Calcs, Market Stats)"]
+                    DAL["Data Access Layer (Raw SQL Models)"]
+                end
+
+                subgraph "Data & External Services"
+                    DB[("PostgreSQL")]
+                    Cloudinary["Cloudinary (Image Storage)"]
+                end
+
+                Web <--> Router
+                Router --> Middlewares
+                Router --> Controllers
+                Controllers --> Services
+                Services --> DAL
+                DAL <--> DB
+                Middlewares -- "Images" --> Cloudinary
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Database Entity Relationship Diagram (ERD)</h2>
+        <div class="mermaid">
+            erDiagram
+                USERS ||--o{ PROPERTIES : "manages (agents)"
+                USERS ||--o{ ANALYSES : "creates"
+                USERS ||--o{ REVIEWS : "writes"
+                USERS ||--o{ PORTFOLIOS : "owns"
+                PROPERTIES ||--o{ ANALYSES : "analyzed as"
+                PROPERTIES ||--o{ REVIEWS : "receives"
+                PORTFOLIOS ||--o{ PORTFOLIO_PROPERTIES : "contains"
+                PROPERTIES ||--o{ PORTFOLIO_PROPERTIES : "belongs to"
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Technical Specifications</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Technology</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Backend Runtime</td>
+                    <td>Node.js</td>
+                </tr>
+                <tr>
+                    <td>Database</td>
+                    <td>PostgreSQL (Raw SQL, pg driver)</td>
+                </tr>
+                <tr>
+                    <td>Authentication</td>
+                    <td>JWT (JSON Web Tokens)</td>
+                </tr>
+                <tr>
+                    <td>File Storage</td>
+                    <td>Cloudinary</td>
+                </tr>
+                <tr>
+                    <td>Middleware</td>
+                    <td>Multer (Uploads), Helmet (Security)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>4. Data Strategies</h2>
+        <ul>
+            <li><strong>Raw SQL:</strong> Direct control over optimization and zero boilerplate.</li>
+            <li><strong>JSONB:</strong> Used for flexible fields like property features and analysis inputs.</li>
+            <li><strong>UUIDs:</strong> Used for all primary keys to ensure global uniqueness and security.</li>
+        </ul>
+    </div>
+</body>
+</html>

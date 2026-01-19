@@ -1,0 +1,163 @@
+.container {
+  padding: var(--spacing-6);
+  background-color: var(--bg-dark);
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: var(--spacing-6);
+}
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-2);
+  color: var(--text-primary);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--spacing-6);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-6);
+}
+
+.tab {
+  padding-bottom: var(--spacing-2);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tab.active {
+  color: var(--primary-green);
+  border-bottom-color: var(--primary-green);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-8);
+}
+
+.sectionTitle {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-4);
+  font-weight: 600;
+}
+
+.inputGroup {
+  margin-bottom: var(--spacing-4);
+}
+
+.label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0 12px;
+}
+
+.inputIcon {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  padding: 10px;
+  outline: none;
+  font-weight: 500;
+}
+
+.card {
+  background-color: #f0fdf4; /* Light green tint for return card background as per image, or dark? Image 3 uses light card! */
+  /* Wait, user asked for Dark Mode generally. But Image 3 "123 Main St" shows a white/light card design! 
+     Image 2 "PropAnalyze" is dark mode. Image 0 is dark mode.
+     Image 3 seems to be a light mode version or just a bright card.
+     Given the user restriction "Dark modes", I should adapt Image 3 to Dark Mode. */
+  background-color: var(--bg-card); 
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-6);
+}
+
+.cardTitle {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.trendIcon {
+    color: var(--primary-green);
+}
+
+.metricsRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-8);
+}
+
+
+
+.metricLabel {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.metricValue {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+.metricValueDark {
+     color: var(--text-primary); 
+}
+
+.chartContainer {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    /* Donut chart placeholder styling */
+}
+
+.donut {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 10px solid var(--bg-dark);
+    border-top-color: var(--primary-green);
+    border-right-color: var(--primary-green);
+    transform: rotate(45deg);
+}

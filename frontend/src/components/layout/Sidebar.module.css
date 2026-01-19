@@ -1,0 +1,129 @@
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-4);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 50;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-8);
+  padding: 0 var(--spacing-2);
+}
+
+.logoIcon {
+  color: var(--primary-green);
+  width: 24px;
+  height: 24px;
+}
+
+.logoText {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.logoSubtext {
+  font-size: 0.75rem;
+  color: var(--primary-green);
+  letter-spacing: 0.5px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  flex: 1;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.navItem:hover {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+.navItem.active {
+  background-color: var(--bg-dark); /* Or a subtle green tint */
+  color: var(--text-primary);
+}
+
+.activeIndicator {
+  width: 4px;
+  height: 20px;
+  background-color: var(--primary-green);
+  border-radius: var(--radius-full);
+  position: absolute;
+  left: 0;
+}
+
+.proBadge {
+  background-color: var(--primary-green);
+  color: #000;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.bottomSection {
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--spacing-4);
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background-color: var(--bg-dark);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-2);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--border-color);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.userPlan {
+  font-size: 0.75rem;
+  color: var(--primary-green);
+}

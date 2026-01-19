@@ -1,0 +1,147 @@
+.container {
+  padding: var(--spacing-8);
+  background-color: var(--bg-dark);
+  min-height: 100vh;
+  color: white;
+}
+
+.pageTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-8);
+}
+
+.cgrid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: var(--spacing-8);
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.menuItem {
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.menuItem:hover {
+    background-color: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.menuItem.active {
+    background-color: rgba(74, 222, 128, 0.1);
+    color: var(--primary-green);
+}
+
+.content {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-8);
+    max-width: 800px;
+}
+
+.sectionHeader {
+    margin-bottom: var(--spacing-6);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-4);
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.sectionDesc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.avatarLarge {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.row {
+    display: flex;
+    gap: 20px;
+}
+
+.field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.field input, .field textarea {
+    background-color: #181a19;
+    border: 1px solid var(--border-color);
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.field input:focus, .field textarea:focus {
+    border-color: var(--primary-green);
+}
+
+.btnPrimary {
+    background-color: var(--primary-green);
+    color: black;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.btnPrimary:hover {
+    background-color: var(--primary-green-hover);
+}
+
+.btnSecondary {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.btnSecondary:hover {
+    border-color: var(--text-secondary);
+}

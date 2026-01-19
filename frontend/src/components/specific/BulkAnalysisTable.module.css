@@ -1,0 +1,99 @@
+/* Inheriting many table styles from HistoryTable via composition or duplication for now to keep isolation */
+.tableContainer {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-top: var(--spacing-8);
+}
+
+.tableHeader {
+    padding: var(--spacing-4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.searchBar {
+    width: 300px;
+    background-color: #181a19;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    padding: 8px 16px;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.tableActions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.actionBtn {
+    background-color: #181a19;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
+    background-color: rgba(0,0,0,0.2);
+}
+
+.td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.tr:hover {
+    background-color: var(--bg-card-hover);
+}
+
+.propName {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.propAddr {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ROI Colors */
+.roiPositive {
+    color: var(--primary-green);
+    font-weight: 700;
+}
+.roiNegative {
+    color: #ef4444; /* Red */
+    font-weight: 700;
+}
+
+.profitPositive {
+    color: var(--primary-green);
+}
+.profitNegative {
+    color: #ef4444;
+}
