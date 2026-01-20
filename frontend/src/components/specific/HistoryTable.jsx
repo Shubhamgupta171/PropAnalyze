@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronDown, ArrowUpRight, FileText, Send } from 'lucide-react';
 import styles from './HistoryTable.module.css';
+import ImageWithFallback from '../common/ImageWithFallback';
 
 const HistoryTable = () => {
     const data = [
@@ -42,7 +43,7 @@ const HistoryTable = () => {
             {data.map(item => (
                 <tr key={item.id} className={styles.tr}>
                     <td className={styles.td}>
-                        <img src={item.img} alt="Prop" className={styles.propertyImg} />
+                        <ImageWithFallback src={item.img} alt="Prop" category="house" className={styles.propertyImg} />
                     </td>
                     <td className={styles.td}>
                         <div className={styles.propertyText}>

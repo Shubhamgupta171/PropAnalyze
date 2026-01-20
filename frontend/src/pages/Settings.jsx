@@ -1,6 +1,7 @@
 import React from 'react';
 import { User, CreditCard, Bell, Shield, Mail } from 'lucide-react';
 import styles from './Settings.module.css';
+import ImageWithFallback from '../components/common/ImageWithFallback';
 
 const Settings = () => {
   return (
@@ -33,7 +34,7 @@ const Settings = () => {
 
             <div className={styles.formGroup}>
                 <div style={{display:'flex', gap: '20px', alignItems:'center', marginBottom: '24px'}}>
-                    <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" className={styles.avatarLarge} alt="Profile" />
+                    <ImageWithFallback src={null} category="avatar" className={styles.avatarLarge} alt="Profile" />
                     <div>
                         <button className={styles.btnSecondary}>Change Avatar</button>
                     </div>

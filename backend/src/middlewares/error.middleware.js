@@ -27,6 +27,17 @@ const sendErrorProd = (err, res) => {
 };
 
 module.exports = (err, req, res, next) => {
+  // PostgreSQL Unique Constraint Violation (Code 23505)
+  const isUniqueViolation = 
+    err.code === '23505' || 
+    (err.error && err.error.code === '23505') || 
+    (err.message && (err.message.includes('unique constraint') || err.message.includes('already exists'))) ||
+    (err.detail && err.detail.includes('already exists'));
+
+  if (isUniqueViolation) {
+    err = new AppError('User already exists please signin', 400);
+  }
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 

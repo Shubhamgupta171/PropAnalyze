@@ -2,15 +2,17 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, TrendingUp, BedDouble, Bath, Square } from 'lucide-react';
 import styles from './PropertyCard.module.css';
+import ImageWithFallback from '../common/ImageWithFallback';
 
 const PropertyCard = ({ property }) => {
   return (
     <div className={styles.cardContainer}>
        <div className={styles.imageSection}>
             <div className={styles.badge}>Active 2d</div>
-            <img 
-                src="https://images.unsplash.com/photo-1600596542815-2495db9b639e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+            <ImageWithFallback 
+                src={property?.img} 
                 alt="Property" 
+                category="house"
                 className={styles.image}
             />
        </div>

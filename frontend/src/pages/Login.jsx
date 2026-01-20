@@ -1,13 +1,31 @@
-import React from 'react';
-import { ArrowRight, BarChart3 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, BarChart3, Loader2, Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, loading, error } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate('/map');
+    try {
+      await login(email, password);
+      toast.success('Successfully logged in!');
+      navigate('/map');
+    } catch (err) {
+      // Error is handled by useEffect
+    }
   };
 
   return (
@@ -42,7 +60,13 @@ const Login = () => {
         <form onSubmit={handleLogin} style={{display:'flex', flexDirection: 'column', gap: '20px'}}>
             <div style={{display:'flex', flexDirection:'column', gap: '8px'}}>
                 <label style={{fontSize: '0.85rem', color: '#e5e7eb'}}>Email Address</label>
-                <input type="email" defaultValue="demo@example.com" style={{
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="name@example.com"
+                  style={{
                     backgroundColor: '#181a19',
                     border: '1px solid #333',
                     padding: '12px',
@@ -58,18 +82,47 @@ const Login = () => {
                     <label style={{fontSize: '0.85rem', color: '#e5e7eb'}}>Password</label>
                     <a href="#" style={{fontSize: '0.8rem', color: '#4ade80'}}>Forgot password?</a>
                 </div>
-                <input type="password" defaultValue="password" style={{
-                    backgroundColor: '#181a19',
-                    border: '1px solid #333',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    color: 'white',
-                    fontSize: '1rem',
-                    outline: 'none'
-                }} />
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                    style={{
+                      width: '100%',
+                      backgroundColor: '#181a19',
+                      border: '1px solid #333',
+                      padding: '12px',
+                      paddingRight: '45px',
+                      borderRadius: '8px',
+                      color: 'white',
+                      fontSize: '1rem',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                  }} />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#9ca3af',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
             </div>
 
-            <button type="submit" style={{
+            <button type="submit" disabled={loading} style={{
                 backgroundColor: '#4ade80',
                 color: '#000',
                 fontWeight: 600,
@@ -77,19 +130,23 @@ const Login = () => {
                 padding: '14px',
                 borderRadius: '8px',
                 marginTop: '10px',
-                cursor: 'pointer',
-                transition: 'transform 0.1s',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '8px',
+                border: 'none',
+                opacity: loading ? 0.7 : 1
             }}>
-                Sign In <ArrowRight size={18} />
+                {loading ? <Loader2 className="animate-spin" size={20} /> : (
+                  <>Sign In <ArrowRight size={18} /></>
+                )}
             </button>
         </form>
 
         <div style={{marginTop: '32px', textAlign: 'center', fontSize: '0.9rem', color: '#9ca3af'}}>
-            Don't have an account? <a href="#" style={{color: '#4ade80', fontWeight: 500}}>Sign up</a>
+            Don't have an account? <Link to="/signup" style={{color: '#4ade80', fontWeight: 500}}>Sign up</Link>
         </div>
       </div>
     </div>

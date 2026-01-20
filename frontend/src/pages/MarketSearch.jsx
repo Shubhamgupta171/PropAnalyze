@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Search, MapPin, SlidersHorizontal, ArrowRight, Heart } from 'lucide-react';
 import MapBackground from '../components/common/MapBackground';
 import styles from './MarketSearch.module.css';
+import ImageWithFallback from '../components/common/ImageWithFallback';
 
 const MarketSearch = () => {
   const properties = [
@@ -28,7 +29,7 @@ const MarketSearch = () => {
              {/* Mock Pins */}
              <div style={{position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', display:'flex', flexDirection:'column', alignItems:'center'}}>
                  <div style={{backgroundColor: '#181a19', padding: '8px', borderRadius: '8px', marginBottom: '8px', width: '200px'}}>
-                     <img src={properties[0].img} style={{width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', marginBottom: '4px'}} />
+                     <ImageWithFallback src={properties[0].img} category="house" style={{width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px', marginBottom: '4px'}} />
                      <div style={{fontSize: '0.9rem', fontWeight: 600}}>$450,000</div>
                      <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#4ade80'}}>
                          <span>Est. Rent</span>
@@ -60,7 +61,7 @@ const MarketSearch = () => {
              {properties.map(item => (
                  <div key={item.id} className={styles.propertyCard}>
                      <div className={styles.cardImage}>
-                         <img src={item.img} alt="Home" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                         <ImageWithFallback src={item.img} alt="Home" category="house" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                          <div className={styles.badges}>
                              {item.cap && <span className={`${styles.badge} ${styles.badgeGreen}`}>{item.cap}</span>}
                              {item.coc && <span className={styles.badge}>{item.coc}</span>}

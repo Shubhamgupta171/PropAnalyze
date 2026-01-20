@@ -30,6 +30,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
+    phone: req.body.phone,
+    countryCode: req.body.countryCode,
   });
 
   createSendToken(newUser, 201, res);
@@ -52,6 +54,15 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
+});
+
+exports.getMe = catchAsync(async (req, res, next) => {
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: req.user,
+    },
+  });
 });
 
 

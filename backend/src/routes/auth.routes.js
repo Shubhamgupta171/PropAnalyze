@@ -1,5 +1,6 @@
 const express = require('express');
 const authController = require('../controllers/auth.controller');
+const authMiddleware = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
@@ -38,6 +39,11 @@ const router = express.Router();
  *               role:
  *                 type: string
  *                 enum: [user, agent, admin]
+ *               phone:
+ *                 type: string
+ *               countryCode:
+ *                 type: string
+ *                 default: '+1'
  *     responses:
  *       201:
  *         description: User created successfully
@@ -91,5 +97,29 @@ router.post('/signup', authController.signup);
  *                     user: { $ref: '#/components/schemas/User' }
  */
 router.post('/login', authController.login);
+
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: Get current logged in user
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: 'string' }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user: { $ref: '#/components/schemas/User' }
+ */
+router.get('/me', authMiddleware.protect, authController.getMe);
 
 module.exports = router;

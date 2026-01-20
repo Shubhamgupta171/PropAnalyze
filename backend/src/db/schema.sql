@@ -13,10 +13,23 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('user', 'agent', 'admin')),
     plan VARCHAR(50) DEFAULT 'Free' CHECK (plan IN ('Free', 'Investor', 'Pro')),
     title VARCHAR(255) DEFAULT 'Investor',
+    phone VARCHAR(20),
+    country_code VARCHAR(10) DEFAULT '+1',
     favorites JSONB DEFAULT '[]',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Migration for new columns
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='phone') THEN
+        ALTER TABLE users ADD COLUMN phone VARCHAR(20);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='country_code') THEN
+        ALTER TABLE users ADD COLUMN country_code VARCHAR(10) DEFAULT '+1';
+    END IF;
+END $$;
 
 -- Properties Table
 CREATE TABLE IF NOT EXISTS properties (
@@ -102,6 +115,6 @@ CREATE TABLE IF NOT EXISTS reports (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_properties_location ON properties USING GIN (location);
-CREATE INDEX idx_analyses_user_property ON analyses (user_id, property_id);
-CREATE INDEX idx_reviews_property ON reviews (property_id);
+CREATE INDEX IF NOT EXISTS idx_properties_location ON properties USING GIN (location);
+CREATE INDEX IF NOT EXISTS idx_analyses_user_property ON analyses (user_id, property_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_property ON reviews (property_id);
