@@ -49,11 +49,29 @@ class PropertyService {
   }
 
   async createProperty(data, userId) {
-    // Ensure agent_id is set
+    // Parse JSON strings if they come from multipart/form-data
     const propertyData = { ...data };
-    delete propertyData.agentId; // Clean up camelCase if exists
+    if (typeof propertyData.location === 'string') {
+      try { propertyData.location = JSON.parse(propertyData.location); } catch (e) {}
+    }
+    if (typeof propertyData.features === 'string') {
+      try { propertyData.features = JSON.parse(propertyData.features); } catch (e) {}
+    }
+
+    // Filter allowed fields
+    const allowedFields = [
+      'title', 'description', 'price', 'beds', 'baths', 'sqft', 
+      'year_built', 'lot_size', 'zoning', 'hoa_fees', 'mls_number', 
+      'days_on_market', 'is_fixer_upper', 'status', 'asset_class', 
+      'price_unit', 'category', 'location', 'images', 'features'
+    ];
     
-    return await Property.create(propertyData, userId);
+    const filteredData = {};
+    Object.keys(propertyData).forEach(el => {
+      if (allowedFields.includes(el)) filteredData[el] = propertyData[el];
+    });
+
+    return await Property.create(filteredData, userId);
   }
 
   async updateProperty(id, data, userId, userRole) {
@@ -63,12 +81,35 @@ class PropertyService {
       throw new AppError('No property found with that ID', 404);
     }
 
-    // Check ownership (SQL field is agent_id)
-    if (userRole !== 'admin' && property.agent_id.toString() !== userId.toString()) {
+    // Check ownership
+    if (userRole !== 'admin' && String(property.agent_id) !== String(userId)) {
       throw new AppError('You are not authorized to update this property', 403);
     }
 
-    return await Property.update(id, data);
+    const updates = { ...data };
+    if (typeof updates.location === 'string') {
+      try { updates.location = JSON.parse(updates.location); } catch (e) {}
+    }
+    if (typeof updates.features === 'string') {
+      try { updates.features = JSON.parse(updates.features); } catch (e) {}
+    }
+
+    // Filter allowed fields
+    const allowedFields = [
+      'title', 'description', 'price', 'beds', 'baths', 'sqft', 
+      'year_built', 'lot_size', 'zoning', 'hoa_fees', 'mls_number', 
+      'days_on_market', 'is_fixer_upper', 'status', 'asset_class', 
+      'price_unit', 'category', 'location', 'images', 'features'
+    ];
+    
+    const filteredUpdates = {};
+    Object.keys(updates).forEach(el => {
+      if (allowedFields.includes(el)) filteredUpdates[el] = updates[el];
+    });
+
+    if (Object.keys(filteredUpdates).length === 0) return property;
+
+    return await Property.update(id, filteredUpdates);
   }
 
   async deleteProperty(id, userId, userRole) {
@@ -78,7 +119,7 @@ class PropertyService {
       throw new AppError('No property found with that ID', 404);
     }
 
-    if (userRole !== 'admin' && property.agent_id.toString() !== userId.toString()) {
+    if (userRole !== 'admin' && String(property.agent_id) !== String(userId)) {
       throw new AppError('You are not authorized to delete this property', 403);
     }
 
@@ -87,7 +128,8 @@ class PropertyService {
   }
 
   async getPropertiesWithinRadius(lat, lng, radius, unit = 'mi') {
-    return await Property.findWithinRadius(parseFloat(lat), parseFloat(lng), parseFloat(radius));
+    const radiusInMiles = unit === 'km' ? radius / 1.60934 : radius;
+    return await Property.findWithinRadius(parseFloat(lat), parseFloat(lng), parseFloat(radiusInMiles));
   }
 }
 

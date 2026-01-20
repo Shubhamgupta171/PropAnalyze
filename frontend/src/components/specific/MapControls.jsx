@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layers, Plus, Minus, Crosshair } from 'lucide-react';
 
-const MapControls = () => {
+const MapControls = ({ onZoomIn, onZoomOut }) => {
     const containerStyle = {
         position: 'absolute',
         bottom: '20px',
@@ -23,15 +23,16 @@ const MapControls = () => {
         justifyContent: 'center',
         color: '#fff',
         boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-        transition: 'all 0.2s'
+        transition: 'all 0.2s',
+        cursor: 'pointer'
     };
 
     return (
         <div style={containerStyle}>
             <button style={btnStyle} title="Layers"><Layers size={20} /></button>
             <div style={{...containerStyle, position: 'static', flexDirection: 'column', gap: 0, borderRadius: '20px', overflow: 'hidden', border: '1px solid #2a2d2c'}}>
-                 <button style={{...btnStyle, borderRadius: 0, border: 'none', borderBottom: '1px solid #2a2d2c'}}><Plus size={20} /></button>
-                 <button style={{...btnStyle, borderRadius: 0, border: 'none'}}><Minus size={20} /></button>
+                 <button onClick={onZoomIn} style={{...btnStyle, borderRadius: 0, border: 'none', borderBottom: '1px solid #2a2d2c'}} title="Zoom In"><Plus size={20} /></button>
+                 <button onClick={onZoomOut} style={{...btnStyle, borderRadius: 0, border: 'none'}} title="Zoom Out"><Minus size={20} /></button>
             </div>
              <button style={btnStyle} title="Locate"><Crosshair size={20} /></button>
         </div>

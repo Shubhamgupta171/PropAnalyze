@@ -1,12 +1,12 @@
 .cardContainer {
-  position: absolute; /* To place on map */
-  background-color: var(--bg-card);
-  border-radius: var(--radius-lg);
-  width: 280px;
+  position: relative;
+  background-color: #1c1e1d; /* Solid dark color matching design */
+  border-radius: 12px;
+  width: 100%;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  border: 1px solid var(--border-color);
-  animation: fadeIn 0.3s ease-out;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  border: 1px solid #333;
+  animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -110,6 +110,22 @@
     background-color: var(--primary-green-hover);
 }
 
-.pointer {
-    /* Optional: triangle at bottom */
+.favoriteBtn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(0,0,0,0.4);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.favoriteBtn:hover {
+    background-color: rgba(0,0,0,0.6);
 }

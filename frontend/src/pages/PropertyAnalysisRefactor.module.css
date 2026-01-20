@@ -1,151 +1,234 @@
 .container {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #0f1110;
-  overflow: hidden;
+  background-color: #f8fafc; /* Light background for analysis as per Image 0 */
+  overflow-x: hidden;
 }
 
 .mapSection {
-  flex: 0 0 45%; /* Top 45% for Map */
+  width: 100%;
+  height: 300px;
   position: relative;
-  background-color: #1a1d1c;
+  background-color: #e2e8f0;
 }
 
-.mapOverlayControls {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  background-color: #181a19;
-  border-radius: var(--radius-full);
-  padding: 6px;
-  display: flex;
-  gap: 8px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-}
-
-.strategyBtn {
-  background-color: transparent;
-  color: var(--text-secondary);
+.mapIframe {
+  width: 100%;
+  height: 100%;
   border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius-full);
-  font-size: 0.8rem;
+}
+
+.activeListingBadge {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #22c55e;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+}
+
+.contentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  width: 100%;
+}
+
+.propertyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.propertyTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.propertyStats {
+  display: flex;
+  gap: 16px;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.strategyTabs {
+  display: flex;
+  gap: 32px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 32px;
+}
+
+.strategyTab {
+  padding-bottom: 12px;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
   font-weight: 600;
+  color: #64748b;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.strategyBtn.active {
-  background-color: var(--primary-green);
-  color: black;
-}
-
-.analysisSection {
-  flex: 1; /* Remaining height */
-  background-color: #0f1110;
-  border-top: 1px solid var(--border-color);
-  overflow-y: auto; /* Scrollable content */
-  padding: var(--spacing-6);
   position: relative;
 }
 
-.analysisHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-6);
+.strategyTab.active {
+  color: #22c55e;
 }
 
-.headerTitle {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.strategyTab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #22c55e;
 }
 
-.accentBar {
-    width: 4px;
-    height: 24px;
-    background-color: var(--primary-green);
-    border-radius: 2px;
+.analysisGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 40px;
 }
 
-.headerMeta {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+.sectionLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.tabsContainer {
-    display: flex;
-    gap: 20px;
-    margin-bottom: var(--spacing-8);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 1px;
+.inputGroup {
+  margin-bottom: 20px;
 }
 
-.tabBtn {
-    padding-bottom: 12px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
+.inputLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
 }
 
-.tabBtn:hover {
-    color: var(--text-primary);
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
 }
 
-.tabBtn.active {
-    color: white;
-    border-bottom-color: white; /* Or green depending on exact look, image implies white/grey active state or distinct button style */
+.inputPrefix {
+  color: #94a3b8;
+  margin-right: 8px;
 }
 
-/* Image 19 shows distinct "Button" style tabs, not just text border */
-.tabPill {
-    background-color: rgba(255,255,255,0.05);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    padding: 10px 20px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    cursor: pointer;
+.input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 1rem;
+  color: #1e293b;
 }
 
-.tabPill.active {
-    background-color: rgba(255,255,255,0.1);
-    border-color: var(--text-secondary);
-    color: white;
+.inputSuffix {
+  color: #94a3b8;
+  margin-left: 8px;
 }
 
-.dashboardGrid {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr; /* Left wider for inputs? Or Right wider? Image looks roughly split or Left 40/Right 60 */
-    gap: var(--spacing-8);
+.returnsCard {
+  background-color: #f0fdf4; /* Light green background from Image 0 */
+  border-radius: 24px;
+  padding: 32px;
 }
 
-/* Override specifics for the panels */
-.panelTitle {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-4);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.returnsHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.returnsTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.returnsSubtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.metricsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #22c55e;
+  line-height: 1;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+.chartContainer {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.donutWrapper {
+  width: 80px;
+  height: 80px;
+  position: relative;
+}
+
+.chartLegend {
+  flex: 1;
+}
+
+.legendItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+}
+
+.exportBtn {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
 }

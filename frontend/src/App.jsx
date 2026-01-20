@@ -58,7 +58,7 @@ function App() {
             <Route path="map" element={<Dashboard />} />
             <Route path="bulk" element={<BulkUnderwriting />} />
             <Route path="market" element={<MarketSearch />} />
-            <Route path="analysis" element={<PropertyAnalysis />} />
+            <Route path="analysis/:id" element={<PropertyAnalysis />} />
             <Route path="history" element={<History />} />
             <Route path="settings" element={<Settings />} />
             <Route path="reports" element={<Reports />} />

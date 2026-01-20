@@ -1,205 +1,219 @@
-import React, { useState } from 'react';
-import { Filter, Wallet, Banknote, Building2, ChevronDown, CheckCircle2 } from 'lucide-react';
-import MapBackground from '../components/common/MapBackground';
-import AdvancedCalculator from '../components/specific/AdvancedCalculator'; // We will reuse/adapt this
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { CheckCircle2, FileText, ChevronDown, Info, TrendingUp } from 'lucide-react';
 import styles from './PropertyAnalysisRefactor.module.css';
+import propertyService from '../services/property.service';
+import toast from 'react-hot-toast';
 
 const PropertyAnalysis = () => {
-  const [strategy, setStrategy] = useState('long-term');
-  const [financingType, setFinancingType] = useState('cash');
+  const { id } = useParams();
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeStrategy, setActiveStrategy] = useState('Long-term');
+  const [assumptions, setAssumptions] = useState({
+    purchasePrice: 0,
+    rehabCost: 25000,
+    downPayment: 20,
+    interestRate: 6.5
+  });
+
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        const response = await propertyService.getPropertyById(id);
+        const prop = response.data.property;
+        setProperty(prop);
+        setAssumptions(prev => ({
+            ...prev,
+            purchasePrice: prop.price
+        }));
+      } catch (error) {
+        console.error('Error fetching property:', error);
+        toast.error('Failed to load property analysis');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [id]);
+
+  const handleInputChange = (field, value) => {
+    setAssumptions(prev => ({
+        ...prev,
+        [field]: parseFloat(value) || 0
+    }));
+  };
+
+  if (loading) return <div className={styles.loading}>Loading analysis...</div>;
+  if (!property) return <div className={styles.error}>Property not found.</div>;
 
   return (
     <div className={styles.container}>
-      {/* Top Section: Map */}
+      {/* 1. Map Section */}
       <div className={styles.mapSection}>
-          <div style={{position:'absolute', top:'20px', left:'20px', zIndex:10, backgroundColor:'#181a19', padding:'8px 16px', borderRadius:'8px', border:'1px solid #333'}}>
-             <h1 style={{color:'white', fontSize:'1.1rem', fontWeight:600}}>123 Maple Ave, Austin TX 78704</h1>
-             <div style={{color:'#9ca3af', fontSize:'0.8rem', display:'flex', gap:'12px', marginTop:'4px'}}>
-                 <span>4 Bed</span><span>2 Bath</span><span>2,100 Sqft</span>
-             </div>
-          </div>
-
-          <div className={styles.mapOverlayControls}>
-              <div style={{display:'flex', alignItems:'center', gap:'8px', paddingRight:'12px', borderRight:'1px solid #333', marginRight:'4px'}}>
-                   <Filter size={14} color="#4ade80" />
-                   <span style={{color:'white', fontSize:'0.75rem', fontWeight:600, textTransform:'uppercase'}}>Strategy Filter</span>
-              </div>
-              <button 
-                className={`${styles.strategyBtn} ${strategy === 'long-term' ? styles.active : ''}`}
-                onClick={() => setStrategy('long-term')}
-              >
-                  Long Term
-              </button>
-              <button 
-                className={`${styles.strategyBtn} ${strategy === 'short-term' ? styles.active : ''}`}
-                onClick={() => setStrategy('short-term')}
-              >
-                  Short Term
-              </button>
-              <button 
-                className={`${styles.strategyBtn} ${strategy === 'mid-term' ? styles.active : ''}`}
-                onClick={() => setStrategy('mid-term')}
-              >
-                  Mid Term
-              </button>
-          </div>
-          <MapBackground opacity={0.6} />
+        <div className={styles.activeListingBadge}>
+          <CheckCircle2 size={16} />
+          ACTIVE LISTING
+        </div>
+        <iframe 
+          className={styles.mapIframe}
+          title="Property Location"
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=${property.location.coordinates[0]-0.01}%2C${property.location.coordinates[1]-0.01}%2C${property.location.coordinates[0]+0.01}%2C${property.location.coordinates[1]+0.01}&layer=mapnik&marker=${property.location.coordinates[1]}%2C${property.location.coordinates[0]}`}
+        ></iframe>
       </div>
 
-      {/* Bottom Section: Analysis Panel */}
-      <div className={styles.analysisSection}>
-          <div className={styles.analysisHeader}>
-              <div className={styles.headerTitle}>
-                  <div className={styles.accentBar}></div>
-                  Underwriting Analysis <span style={{color:'#6b7280', fontWeight:400, marginLeft:'8px'}}>- Long Term Rental</span>
+      <div className={styles.contentWrapper}>
+        {/* 2. Property Header */}
+        <div className={styles.propertyHeader}>
+          <div>
+            <h1 className={styles.propertyTitle}>{property.location.address}</h1>
+            <div className={styles.propertyStats}>
+              <span>{property.beds} Beds</span>
+              <span>•</span>
+              <span>{property.baths} Baths</span>
+              <span>•</span>
+              <span>{property.sqft.toLocaleString()} Sqft</span>
+              <span>•</span>
+              <span>Built {property.year_built || '2005'}</span>
+            </div>
+          </div>
+          <button className={styles.exportBtn}>
+            <FileText size={18} color="#22c55e" />
+            Export PDF
+          </button>
+        </div>
+
+        {/* 3. Strategy Tabs */}
+        <div className={styles.strategyTabs}>
+          {['Long-term', 'Mid-term', 'Short-term', 'Section 8', 'Comparable Sales'].map(tab => (
+            <button 
+              key={tab}
+              className={`${styles.strategyTab} ${activeStrategy === tab ? styles.active : ''}`}
+              onClick={() => setActiveStrategy(tab)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* 4. Main Analysis Grid */}
+        <div className={styles.analysisGrid}>
+          {/* Left: Assumptions */}
+          <div className={styles.assumptionsCol}>
+            <div className={styles.sectionLabel}>
+              EXPENSE ASSUMPTIONS
+              <span style={{color:'#22c55e', fontSize:'0.7rem', cursor:'pointer'}}>Reset to default</span>
+            </div>
+
+            <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>Purchase Price <Info size={14} color="#94a3b8" /></label>
+                <div className={styles.inputWrapper}>
+                    <span className={styles.inputPrefix}>$</span>
+                    <input 
+                        type="number" 
+                        value={assumptions.purchasePrice} 
+                        onChange={(e) => handleInputChange('purchasePrice', e.target.value)}
+                        className={styles.input}
+                    />
+                    <span className={styles.inputSuffix}>USD</span>
+                </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+                <label className={styles.inputLabel}>Rehab Cost <Info size={14} color="#94a3b8" /></label>
+                <div className={styles.inputWrapper}>
+                    <span className={styles.inputPrefix}>$</span>
+                    <input 
+                        type="number" 
+                        value={assumptions.rehabCost} 
+                        onChange={(e) => handleInputChange('rehabCost', e.target.value)}
+                        className={styles.input}
+                    />
+                </div>
+            </div>
+
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px'}}>
+                <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Down Payment</label>
+                    <div className={styles.inputWrapper}>
+                        <input 
+                            type="number" 
+                            value={assumptions.downPayment} 
+                            onChange={(e) => handleInputChange('downPayment', e.target.value)}
+                            className={styles.input}
+                        />
+                        <span className={styles.inputSuffix}>%</span>
+                    </div>
+                </div>
+                <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Interest Rate</label>
+                    <div className={styles.inputWrapper}>
+                        <input 
+                            type="number" 
+                            value={assumptions.interestRate} 
+                            onChange={(e) => handleInputChange('interestRate', e.target.value)}
+                            className={styles.input}
+                        />
+                        <span className={styles.inputSuffix}>%</span>
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          {/* Right: Projected Returns */}
+          <div className={styles.returnsCol}>
+            <div className={styles.returnsCard}>
+              <div className={styles.returnsHeader}>
+                <div>
+                    <h2 className={styles.returnsTitle}>Projected Returns</h2>
+                    <p className={styles.returnsSubtitle}>Based on {activeStrategy.toLowerCase()} rental strategy</p>
+                </div>
+                <TrendingUp size={24} color="#22c55e" />
               </div>
-              <div className={styles.headerMeta}>
-                  <div style={{display:'flex', alignItems:'center', gap:'6px', backgroundColor:'#181a19', padding:'6px 12px', borderRadius:'999px', border:'1px solid #333'}}>
-                      <span style={{width:'8px', height:'8px', borderRadius:'50%', backgroundColor:'#4ade80'}}></span>
-                      Data updated today
-                  </div>
+
+              <div className={styles.metricsRow}>
+                <div>
+                    <div className={styles.metricLabel}>Cash-on-Cash</div>
+                    <div className={styles.metricValue}>+{property.latest_coc || '12.5'}%</div>
+                </div>
+                <div>
+                    <div className={styles.metricLabel}>Cap Rate</div>
+                    <div className={styles.metricValue}>{property.latest_cap_rate || '7.2'}%</div>
+                </div>
               </div>
+
+              <div style={{height:'1px', backgroundColor:'#dcfce7', margin:'24px 0'}}></div>
+
+              <div className={styles.chartContainer}>
+                <div className={styles.donutWrapper}>
+                    {/* SVG Donut Placeholder */}
+                    <svg viewBox="0 0 36 36" style={{width:'100%', height:'100%'}}>
+                        <path stroke="#e2e8f0" strokeWidth="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path stroke="#22c55e" strokeWidth="3" strokeDasharray="75, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div style={{position:'absolute', top:'50%', left:'50%', transform:'translate(-50%, -50%)', fontSize:'0.7rem', fontWeight:700}}>NOI</div>
+                </div>
+                <div className={styles.chartLegend}>
+                    <div className={styles.legendItem}>
+                        <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                            <div style={{width:'10px', height:'10px', borderRadius:'50%', backgroundColor:'#22c55e'}}></div>
+                            <span>Net Operating Income</span>
+                        </div>
+                        <span style={{fontWeight:700}}>${(property.price * 0.05).toLocaleString()}</span>
+                    </div>
+                    <div className={styles.legendItem}>
+                        <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#94a3b8'}}>
+                            <div style={{width:'10px', height:'10px', borderRadius:'50%', backgroundColor:'#e2e8f0'}}></div>
+                            <span>Operating Expenses</span>
+                        </div>
+                        <span style={{fontWeight:700, color:'#1e293b'}}>${(property.price * 0.02).toLocaleString()}</span>
+                    </div>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div className={styles.tabsContainer}>
-              <button 
-                className={`${styles.tabPill} ${financingType === 'cash' ? styles.active : ''}`}
-                onClick={() => setFinancingType('cash')}
-              >
-                  <Wallet size={16} /> Cash
-              </button>
-              <button 
-                className={`${styles.tabPill} ${financingType === 'conventional' ? styles.active : ''}`}
-                onClick={() => setFinancingType('conventional')}
-              >
-                  <Banknote size={16} /> Conventional
-              </button>
-              <button 
-                className={`${styles.tabPill} ${financingType === 'seller-finance' ? styles.active : ''}`}
-                onClick={() => setFinancingType('seller-finance')}
-              >
-                  <Building2 size={16} /> Seller Finance
-              </button>
-              <button className={styles.tabPill}>
-                  Subject-to
-              </button>
-          </div>
-
-          <div className={styles.dashboardGrid}>
-             {/* Left Column: Input Assumptions (Reusing AdvancedCalculator logic but styled flatly here or wrapping it) */}
-             <div style={{display:'flex', flexDirection:'column', gap:'24px'}}>
-                 <div className={styles.panelTitle}>
-                     <Filter size={16} style={{transform: 'rotate(90deg)'}} /> Input Assumptions
-                     <span style={{marginLeft:'auto', fontSize:'0.75rem', color:'#4ade80', cursor:'pointer'}}>Reset</span>
-                 </div>
-                 
-                 {/* Manually building the styled inputs to match Image 19 perfectly */}
-                 <div>
-                     <div style={{fontSize:'0.75rem', color:'#4ade80', marginBottom:'12px', fontWeight:600, borderLeft:'2px solid #4ade80', paddingLeft:'8px'}}>ACQUISITION & REHAB</div>
-                     <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginBottom:'16px'}}>
-                         <div>
-                             <label style={{display:'block', fontSize:'0.75rem', color:'#9ca3af', marginBottom:'6px'}}>Purchase Price</label>
-                             <div style={{backgroundColor:'#181a19', border:'1px solid #333', borderRadius:'8px', padding:'10px', color:'white', fontSize:'0.9rem'}}>$ 425,000</div>
-                         </div>
-                         <div>
-                             <label style={{display:'block', fontSize:'0.75rem', color:'#9ca3af', marginBottom:'6px'}}>Rehab Cost</label>
-                             <div style={{backgroundColor:'#181a19', border:'1px solid #333', borderRadius:'8px', padding:'10px', color:'white', fontSize:'0.9rem'}}>$ 35,000</div>
-                         </div>
-                         <div>
-                             <label style={{display:'block', fontSize:'0.75rem', color:'#9ca3af', marginBottom:'6px'}}>After Repair Value (ARV)</label>
-                             <div style={{backgroundColor:'#181a19', border:'1px solid #333', borderRadius:'8px', padding:'10px', color:'white', fontSize:'0.9rem'}}>$ 510,000</div>
-                         </div>
-                         <div>
-                             <label style={{display:'block', fontSize:'0.75rem', color:'#9ca3af', marginBottom:'6px'}}>Closing Costs</label>
-                             <div style={{backgroundColor:'#181a19', border:'1px solid #333', borderRadius:'8px', padding:'10px', color:'white', fontSize:'0.9rem', display:'flex', justifyContent:'space-between'}}>
-                                 <span>3.0</span><span>%</span>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-
-                 <div>
-                     <div style={{fontSize:'0.75rem', color:'#4ade80', marginBottom:'12px', fontWeight:600, borderLeft:'2px solid #4ade80', paddingLeft:'8px'}}>LOAN DETAILS</div>
-                     <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px'}}>
-                         <div>
-                             <label style={{display:'block', fontSize:'0.75rem', color:'#9ca3af', marginBottom:'6px'}}>Down Payment</label>
-                             <div style={{backgroundColor:'#181a19', border:'1px solid #333', borderRadius:'8px', padding:'10px', color:'white', fontSize:'0.9rem', display:'flex', justifyContent:'space-between'}}>
-                                 <span>20</span><span>%</span>
-                             </div>
-                         </div>
-                         <div>
-                             <label style={{display:'block', fontSize:'0.75rem', color:'#9ca3af', marginBottom:'6px'}}>Interest Rate</label>
-                             <div style={{backgroundColor:'#181a19', border:'1px solid #333', borderRadius:'8px', padding:'10px', color:'white', fontSize:'0.9rem', display:'flex', justifyContent:'space-between'}}>
-                                 <span>7.125</span><span>%</span>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-
-             {/* Right Column: KPIs and Max Offer */}
-             <div style={{display:'flex', flexDirection:'column', gap:'20px'}}>
-                 {/* Max Allowable Offer Card */}
-                 <div style={{backgroundColor:'#0f1110', border:'1px solid #2a2d2c', borderRadius:'16px', padding:'24px', position:'relative', boxShadow:'inset 0 0 40px rgba(0,0,0,0.5)'}}>
-                      <div style={{position:'absolute', top:'20px', right:'20px'}}>
-                          <div style={{width:'24px', height:'24px', backgroundColor:'#4ade80', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                             <CheckCircle2 size={14} color="black" />
-                          </div>
-                      </div>
-                      <h3 style={{color:'white', fontSize:'1rem', fontWeight:600, marginBottom:'4px'}}>Max Allowable Offer</h3>
-                      <p style={{color:'#9ca3af', fontSize:'0.8rem', marginBottom:'20px'}}>This offer achieves your <span style={{color:'white', fontWeight:600}}>12% CoC</span> target.</p>
-                      
-                      <div style={{fontSize:'2.5rem', fontWeight:700, color:'white', lineHeight:1, marginBottom:'4px'}}>$395,000</div>
-                      <div style={{fontSize:'0.85rem', color:'#ef4444'}}>↓ $30k below ask</div>
-                 </div>
-
-                 {/* KPI Row */}
-                 <div style={{display:'flex', gap:'16px'}}>
-                     <div style={{flex:1, backgroundColor:'#181a19', borderRadius:'16px', padding:'16px', border:'1px solid #2a2d2c'}}>
-                         <div style={{fontSize:'0.75rem', color:'#9ca3af', marginBottom:'8px'}}>Net Monthly Cash Flow</div>
-                         <div style={{fontSize:'1.5rem', fontWeight:700, color:'#4ade80'}}>+$482<span style={{fontSize:'0.9rem', fontWeight:400, color:'#9ca3af'}}>/mo</span></div>
-                         <div style={{marginTop:'8px', display:'inline-block', padding:'4px 8px', backgroundColor:'rgba(74, 222, 128, 0.1)', borderRadius:'4px', color:'#4ade80', fontSize:'0.7rem', fontWeight:600}}>↗ Positive</div>
-                     </div>
-                     <div style={{flex:1, backgroundColor:'#181a19', borderRadius:'16px', padding:'16px', border:'1px solid #2a2d2c'}}>
-                         <div style={{fontSize:'0.75rem', color:'#9ca3af', marginBottom:'8px'}}>Cash-on-Cash</div>
-                         <div style={{fontSize:'1.5rem', fontWeight:700, color:'white'}}>9.4%</div>
-                         <div style={{height:'4px', width:'100%', backgroundColor:'#333', borderRadius:'2px', marginTop:'12px'}}>
-                            <div style={{width:'75%', height:'100%', backgroundColor:'#4ade80', borderRadius:'2px'}}></div>
-                         </div>
-                     </div>
-                     <div style={{flex:1, backgroundColor:'#181a19', borderRadius:'16px', padding:'16px', border:'1px solid #2a2d2c'}}>
-                         <div style={{fontSize:'0.75rem', color:'#9ca3af', marginBottom:'8px'}}>Cap Rate</div>
-                         <div style={{fontSize:'1.5rem', fontWeight:700, color:'white'}}>6.8%</div>
-                         <div style={{height:'4px', width:'100%', backgroundColor:'#333', borderRadius:'2px', marginTop:'12px'}}>
-                            <div style={{width:'60%', height:'100%', backgroundColor:'#3b82f6', borderRadius:'2px'}}></div>
-                         </div>
-                     </div>
-                 </div>
-
-                 {/* Financial Breakdown */}
-                 <div style={{backgroundColor:'#181a19', borderRadius:'16px', padding:'24px', border:'1px solid #2a2d2c'}}>
-                     <h3 style={{display:'flex', alignItems:'center', gap:'8px', fontSize:'0.9rem', fontWeight:600, color:'white', marginBottom:'20px'}}>
-                         <Wallet size={16} /> Financial Breakdown
-                     </h3>
-                     <div style={{display:'flex', justifyContent:'space-between', marginBottom:'12px', fontSize:'0.9rem'}}>
-                         <span style={{color:'#9ca3af'}}>Gross Rent</span>
-                         <span style={{color:'white'}}>$3,200</span>
-                     </div>
-                     <div style={{display:'flex', justifyContent:'space-between', marginBottom:'12px', fontSize:'0.9rem'}}>
-                         <span style={{color:'#9ca3af'}}>Operating Expenses</span>
-                         <span style={{color:'#ef4444'}}>($875)</span>
-                     </div>
-                     <div style={{display:'flex', justifyContent:'space-between', marginBottom:'20px', fontSize:'0.9rem', paddingBottom:'20px', borderBottom:'1px solid #333'}}>
-                         <span style={{color:'#9ca3af'}}>Mortgage Payment</span>
-                         <span style={{color:'#ef4444'}}>($1,843)</span>
-                     </div>
-                     <div style={{display:'flex', justifyContent:'space-between', fontSize:'1rem', fontWeight:600}}>
-                         <span style={{color:'white'}}>NOI (Annual)</span>
-                         <span style={{color:'#4ade80'}}>$27,900</span>
-                     </div>
-                 </div>
-             </div>
-          </div>
+        </div>
       </div>
     </div>
   );

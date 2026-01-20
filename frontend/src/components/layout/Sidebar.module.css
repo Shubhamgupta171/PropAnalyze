@@ -1,11 +1,10 @@
 .sidebar {
   width: var(--sidebar-width);
   height: 100vh;
-  background-color: var(--bg-card);
-  border-right: 1px solid var(--border-color);
+  background-color: #0d1a12; /* Darker green background */
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-4);
+  padding: var(--spacing-6) var(--spacing-4);
   position: fixed;
   left: 0;
   top: 0;

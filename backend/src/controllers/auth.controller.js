@@ -32,6 +32,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     phone: req.body.phone,
     countryCode: req.body.countryCode,
+    role: req.body.role, // Allow role for testing
+    plan: req.body.plan
   });
 
   createSendToken(newUser, 201, res);
