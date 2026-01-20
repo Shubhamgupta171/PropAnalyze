@@ -1,52 +1,40 @@
-# Day 4: Property CRUD APIs
+# Day 4: Property CRUD APIs & Data Seeding
 
-## Goal
-Implement full Create, Read, Update, Delete (CRUD) operations for properties, ensuring that only authorized users (Agents/Admin) can manage data.
+## Overview
+Implemented full Create, Read, Update, and Delete (CRUD) operations for properties. integrated geolocation searches, and seeded a diverse dataset of 22 properties across San Francisco.
 
-## Checklist
+## Backend Technical Highlights
 
-### 1. Architecture Update
-- [x] **Auth Middleware** (`src/middlewares/auth.middleware.js`):
-    -   Extracted `protect` for better organization.
-    -   Added `restrictTo` for role-based access (e.g., only 'agent' can create).
-- [x] **Property Service** (`src/services/property.service.js`):
-    -   Replaced mock data with real **Raw SQL** queries via the `Property` model.
-    -   Added authorization logic (User can only update their own property).
+### 1. Property Model & Database (`src/models/property.model.js`)
+- Implemented **Raw SQL** queries for high-performance PostgreSQL interaction.
+- Supported **JSONB** for storing GeoJSON location data (`{address, coordinates}`).
+- Added a robust `create` method that automatically links properties to the authenticated **Agent ID**.
 
-### 2. API Endpoints (`src/routes/property.routes.js`)
--   **Method**: `GET /api/v1/properties`
-    -   **Access**: Public
-    -   **Desc**: Fetch all properties.
--   **Method**: `GET /api/v1/properties/:id`
-    -   **Access**: Public
-    -   **Desc**: Fetch property details.
--   **Method**: `POST /api/v1/properties`
-    -   **Access**: Protected (Agent/Admin)
-    -   **Desc**: Create a new property.
--   **Method**: `PATCH /api/v1/properties/:id`
-    -   **Access**: Protected (Owner/Admin)
-    -   **Desc**: Update details.
--   **Method**: `DELETE /api/v1/properties/:id`
-    -   **Access**: Protected (Owner/Admin)
-    -   **Desc**: Remove property.
+### 2. Advanced API Endpoints (`src/routes/property.routes.js`)
+- **Full CRUD**:
+    - `GET /properties`: Fetch all listings with optional filtering.
+    - `GET /properties/:id`: Detailed property view.
+    - `POST /properties`: Secure property creation (restricted to Agents).
+    - `PATCH /properties/:id`: Ownership-checked updates.
+    - `DELETE /properties/:id`: Secure deletion.
+- **Geolocation Search**:
+    - `GET /properties/properties-within/:distance/center/:latlng/unit/:unit`: Find properties within a specific radius using PostGIS-style logic.
 
-### 3. Testing with Postman
-1.  **Login as Agent**: Get your Bearer Token.
-2.  **Create Property**:
-    -   POST to `/properties`.
-    -   Header: `Authorization: Bearer <your_token>`
-    -   Body:
-        ```json
-        {
-          "title": "Modern Loft",
-          "price": 500000,
-          "description": "Beautiful view",
-          "location": {
-            "coordinates": [-73.98, 40.75],
-            "address": "NY"
-          }
-        }
-        ```
-3.  **Verify**:
-    -   Check the `properties` table in PostgreSQL to see `agent_id` is correctly linked to your UUID.
-    -   Try to DELETE it as a different user (should return 403 Forbidden).
+### 3. Role-Based Access Control
+- Extended `auth.middleware.js` with `restrictTo('agent', 'admin')`.
+- Implemented ownership verification: Users can only modify or delete properties they own.
+
+### 4. Extensive Data Seeding
+- Created `src/scripts/seed_properties.js`.
+- Seeded **22 diverse listings** across San Francisco (Fixer-uppers, Luxury High-rises, Multi-Family).
+- Each listing includes a unique ID, price (from $675k to $12.5M), address, coordinates, and high-quality Unsplash images.
+
+## How to Test
+1. **API check**: 
+   ```bash
+   curl http://localhost:3000/api/v1/properties
+   ```
+2. **Seeding**:
+   ```bash
+   node src/scripts/seed_properties.js
+   ```

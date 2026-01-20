@@ -90,7 +90,7 @@ npm start
 The API is versioned at `/api/v1`. Key resources include:
 
 *   **Users/Auth**: `/api/v1/users` - Authentication, profiles, and subscription plans.
-*   **Properties**: `/api/v1/properties` - Real estate listings with geospatial search.
+*   **Properties**: `/api/v1/properties` - Real estate listings with advanced **Geospatial Search** (`/properties-within`) and specialized **seeding scripts** for diverse testing.
 *   **Analysis**: `/api/v1/analysis` - Investment underwriting and Max Offer logic.
 *   **Health Check**: `/api/v1/health` - Application health status.
 

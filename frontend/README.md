@@ -10,7 +10,7 @@ A modern, high-performance web application for real estate market analysis, buil
 - **Styling**: Vanilla CSS Modules (Scoped, Performance-First)
 - **Icons**: Lucide React
 - **Routing**: React Router DOM v6
-- **Maps**: (Mocked) Interactive Map Components
+- **Maps**: Fully Integrated **Interactive Map Dashboard** (Real-time API sync)
 - **State Management**: React Hooks (useState, useEffect)
 
 ---
