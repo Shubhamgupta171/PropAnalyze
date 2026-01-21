@@ -5,34 +5,34 @@ Enable advanced data retrieval including filtering, sorting, pagination, and geo
 
 ## Checklist
 
-### 1. New Features
+### 1. Robust Features
 - [x] **SQL APIFeatures** (`src/utils/APIFeatures.js`):
-    -   Generates raw SQL statements (`WHERE`, `ORDER BY`, `LIMIT`) from query parameters.
-    -   Handles standard filtering (`price[gte]=100`).
-    -   Handles sorting (`sort=-price`).
-    -   Handles field selection (`fields=title,price`).
-    -   Handles pagination (`page=1&limit=10`).
+    -   Handles bracketed operators like `price[gte]=100000`.
+    -   Supports `sort`, `fields`, and `page` parameters.
+    -   Automatically includes `id` in field selection for logic robustness.
 - [x] **Geospatial & Metrics** (`src/services/property.service.js`):
-    -   All properties now include **Latest Cap Rate** and **CoC** via a LATERAL JOIN for the Map Dashboard.
+    -   Integrated **Latest Cap Rate** and **CoC** via a `LATERAL JOIN` from the `analyses` table.
+    -   Implemented distance-based search in `property.model.js`.
 
-### 2. API Endpoints
--   **Advanced Search**: `GET /api/v1/properties?price[lt]=500000&sort=-price&limit=5`
--   **Map Search**: `GET /api/v1/properties/properties-within/:distance/center/:latlng/unit/:unit`
-    -   Example: `/api/v1/properties/properties-within/10/center/40.75,-73.98/unit/mi`
-    -   Desc: Finds properties within 10 miles of NYC.
+### 2. API Reference
 
-### 3. Frontend Integration Tips
--   **Search Bar**: Just map the form state to the query string:
-    ```js
-    const queryString = \`?price[lte]=\${maxPrice}&rooms[gte]=\${minRooms}\`;
-    fetch(\`/api/v1/properties\${queryString}\`)
-    ```
--   **Map Dashboard**: When the user moves the map, get the center coordinates and fetch:
-    ```js
-    const { lat, lng } = map.getCenter();
-    fetch(\`/api/v1/properties/properties-within/10/center/\${lat},\${lng}/unit/mi\`)
-    ```
+#### Fetch Properties
+`GET /api/v1/properties`
+- **Filters**: `price[gte]=500000`, `beds=3`, `title=Modern`
+- **Sorting**: `sort=-price` (descending), `sort=created_at` (ascending)
+- **Fields**: `fields=title,price,beds`
+- **Example**: `/api/v1/properties?price[lt]=1000000&sort=-price&limit=10`
+
+#### Map Search
+`GET /api/v1/properties/properties-within/:distance/center/:latlng/unit/:unit`
+- **Example**: `/api/v1/properties/properties-within/10/center/37.7849,-122.3994/unit/mi`
+- **Desc**: Finds properties within 10 miles of San Francisco.
+
+### 3. Frontend Implementation
+The `MarketSearch.jsx` page is updated with:
+- **Advanced Filter Panel**: Supports range searches for price and beds.
+- **Geospatial Trigger**: "Search Here" button hits the radius API.
+- **Dynamic Pins**: Renders SVG pins on the map based on listing coordinates.
 
 ## Verification
-1.  **Filter**: Create a property with price 500. Search for `price[lt]=600`. It should appear. Search `price[lt]=400`. It should NOT appear.
-2.  **Geo**: Create a property in NY. Search within 10mi of NY. It should appear. Search within 10mi of LA. It should NOT appear.
+Use the `curl` commands provided in the `api_test_guide.md` or run the manual verification steps in the walkthrough to ensure the data flow is correct.
