@@ -12,15 +12,44 @@ const MarketSearch = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [priceFilter, setPriceFilter] = useState(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [filters, setFilters] = useState({
+    minPrice: '',
+    maxPrice: '',
+    minBeds: ''
+  });
 
   const fetchProperties = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await propertyService.getAllProperties(params);
+      // Build advanced query params
+      const apiParams = { ...params };
+      if (filters.minPrice) apiParams['price[gte]'] = filters.minPrice;
+      if (filters.maxPrice) apiParams['price[lte]'] = filters.maxPrice;
+      if (filters.minBeds) apiParams['beds[gte]'] = filters.minBeds;
+      if (searchQuery) apiParams['title'] = searchQuery;
+      if (priceFilter) apiParams['sort'] = priceFilter;
+
+      const response = await propertyService.getAllProperties(apiParams);
       setProperties(response.data.properties);
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast.error('Failed to load listings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchNearby = async () => {
+    setLoading(true);
+    try {
+      // Using San Francisco center as default for "Search this area"
+      const response = await propertyService.getPropertiesWithin(10, '37.7849,-122.3994', 'mi');
+      setProperties(response.data.properties);
+      toast.success(`Found ${response.results} properties nearby`);
+    } catch (error) {
+      console.error('Error fetching nearby properties:', error);
+      toast.error('Geospatial search failed');
     } finally {
       setLoading(false);
     }
@@ -32,14 +61,52 @@ const MarketSearch = () => {
 
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
-      fetchProperties({ title: searchQuery });
+      fetchProperties();
     }
   };
 
   const handlePriceSort = () => {
     const newSort = priceFilter === 'price' ? '-price' : 'price';
     setPriceFilter(newSort);
+    // Directly fetch with new sort to ensure immediate feedback
     fetchProperties({ sort: newSort });
+  };
+
+  const applyFilters = (e) => {
+    e.preventDefault();
+    setShowAdvanced(false);
+    fetchProperties();
+  };
+
+  // Simple mapping for San Francisco pins on the fake map
+  // Map area is roughly 37.7 - 37.8 Lat, -122.5 - -122.35 Lng
+  const renderPins = () => {
+    return properties.map(p => {
+      const coords = p.location?.coordinates;
+      if (!coords || !Array.isArray(coords)) return null;
+      
+      const lng = coords[0];
+      const lat = coords[1];
+      
+      // Calculate % position (normalized)
+      const left = ((lng - (-122.5)) / ( -122.35 - (-122.5))) * 100;
+      const top = ((lat - 37.8) / (37.7 - 37.8)) * 100;
+
+      if (left < 0 || left > 100 || top < 0 || top > 100) return null;
+
+      return (
+        <div 
+          key={p.id} 
+          className={styles.mapPinContainer}
+          style={{ left: `${left}%`, top: `${top}%` }}
+        >
+          <div className={styles.mapPin}>
+            <MapPin size={16} fill="#4ade80" color="#000" />
+            <div className={styles.pinPrice}>${Math.round(p.price / 1000)}k</div>
+          </div>
+        </div>
+      );
+    });
   };
 
   return (
@@ -57,16 +124,35 @@ const MarketSearch = () => {
               onKeyDown={handleSearch}
             />
             <div style={{display:'flex', gap:'8px'}}>
-                 <button className={styles.filterBtn}>Saved</button>
-                 <button className={styles.filterBtn}>Alerts</button>
+                 <button className={styles.filterBtn} onClick={fetchNearby}>Search Here</button>
+                 <button className={`${styles.filterBtn} ${showAdvanced ? styles.activeFilter : ''}`} onClick={() => setShowAdvanced(!showAdvanced)}>
+                    <SlidersHorizontal size={14} /> Filters
+                 </button>
             </div>
+
+            {showAdvanced && (
+                <div className={styles.advancedFiltersPanel}>
+                   <form onSubmit={applyFilters}>
+                      <div className={styles.filterGroup}>
+                         <label>Min Price</label>
+                         <input type="number" value={filters.minPrice} onChange={e => setFilters({...filters, minPrice: e.target.value})} placeholder="$" />
+                      </div>
+                      <div className={styles.filterGroup}>
+                         <label>Max Price</label>
+                         <input type="number" value={filters.maxPrice} onChange={e => setFilters({...filters, maxPrice: e.target.value})} placeholder="$" />
+                      </div>
+                      <div className={styles.filterGroup}>
+                         <label>Min Beds</label>
+                         <input type="number" value={filters.minBeds} onChange={e => setFilters({...filters, minBeds: e.target.value})} placeholder="3" />
+                      </div>
+                      <button type="submit" className={styles.applyBtn}>Apply Filters</button>
+                   </form>
+                </div>
+            )}
          </div>
          
          <MapBackground opacity={0.5}>
-             {/* Map pins could be dynamically rendered here if coordinates existed */}
-             <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: '#4ade80', fontSize: '0.8rem'}}>
-                Zoom into the map to see listings
-             </div>
+              {renderPins()}
          </MapBackground>
       </div>
 
@@ -86,9 +172,8 @@ const MarketSearch = () => {
                  >
                    Price {priceFilter === 'price' ? '↑' : priceFilter === '-price' ? '↓' : ''}
                  </button>
-                 <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}} onClick={() => fetchProperties({ beds: 3 })}>3+ Beds</button>
-                 <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}} onClick={() => fetchProperties()}>All</button>
-                 <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}}><SlidersHorizontal size={12}/> More</button>
+                 <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}} onClick={() => { setFilters({...filters, minBeds: 3}); fetchProperties(); }}>3+ Beds</button>
+                 <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}} onClick={() => { setFilters({minPrice:'', maxPrice:'', minBeds:''}); setSearchQuery(''); fetchProperties({}); }}>Reset</button>
              </div>
           </div>
 

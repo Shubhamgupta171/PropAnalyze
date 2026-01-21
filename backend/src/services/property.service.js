@@ -14,8 +14,8 @@ class PropertyService {
     // Inject a JOIN to get the latest analysis metrics for each property
     const finalQuery = `
       SELECT sub.*, 
-             a.metrics->>'capRate' as latest_cap_rate,
-             a.metrics->>'cashOnCash' as latest_coc
+             (a.metrics->>'capRate')::numeric as latest_cap_rate,
+             (a.metrics->>'cashOnCash')::numeric as latest_coc
       FROM (${query}) sub
       LEFT JOIN LATERAL (
         SELECT metrics 

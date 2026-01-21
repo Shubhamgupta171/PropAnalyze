@@ -14,12 +14,12 @@ class SQLAPIFeatures {
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach(el => delete queryObj[el]);
 
-    // Simple filtering: key = value
+    // Simple filtering: key = value or key[op] = value
     Object.keys(queryObj).forEach(key => {
       let val = queryObj[key];
       
       // Handle operators: gte, gt, lte, lt
-      if (typeof val === 'object') {
+      if (typeof val === 'object' && val !== null) {
         Object.keys(val).forEach(op => {
           const sqlOp = { gte: '>=', gt: '>', lte: '<=', lt: '<' }[op];
           if (sqlOp) {
@@ -28,8 +28,18 @@ class SQLAPIFeatures {
           }
         });
       } else {
-        this.params.push(val);
-        this.whereClauses.push(`${key} = $${this.params.length}`);
+        // Check for key[op] pattern
+        const match = key.match(/^(.+)\[(gte|gt|lte|lt)\]$/);
+        if (match) {
+          const field = match[1];
+          const op = match[2];
+          const sqlOp = { gte: '>=', gt: '>', lte: '<=', lt: '<' }[op];
+          this.params.push(val);
+          this.whereClauses.push(`${field} ${sqlOp} $${this.params.length}`);
+        } else {
+          this.params.push(val);
+          this.whereClauses.push(`${key} = $${this.params.length}`);
+        }
       }
     });
 
@@ -51,8 +61,11 @@ class SQLAPIFeatures {
 
   limitFields() {
     if (this.queryString.fields) {
-      const fields = this.queryString.fields.split(',').join(', ');
-      this.selectClause = `SELECT ${fields}`;
+      let fields = this.queryString.fields.split(',');
+      if (!fields.includes('id')) {
+        fields.push('id');
+      }
+      this.selectClause = `SELECT ${fields.join(', ')}`;
     }
     return this;
   }
