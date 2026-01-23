@@ -64,8 +64,22 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateMe = async (formData) => {
+    setLoading(true);
+    try {
+      const response = await authService.updateMe(formData);
+      setUser(response.data.user);
+      setLoading(false);
+      return response;
+    } catch (err) {
+      setError(err.response?.data?.message || 'Update failed');
+      setLoading(false);
+      throw err;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, login, signup, logout, updateMe }}>
       {children}
     </AuthContext.Provider>
   );

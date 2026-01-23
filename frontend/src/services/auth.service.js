@@ -15,10 +15,20 @@ const getMe = async () => {
   return response.data;
 };
 
+const updateMe = async (formData) => {
+  const response = await api.patch('/users/updateMe', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
 const authService = {
   login,
   signup,
   getMe,
+  updateMe,
 };
 
 export default authService;

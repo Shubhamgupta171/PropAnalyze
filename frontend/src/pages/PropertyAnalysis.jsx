@@ -56,26 +56,30 @@ const PropertyAnalysis = () => {
           <CheckCircle2 size={16} />
           ACTIVE LISTING
         </div>
-        <iframe 
-          className={styles.mapIframe}
-          title="Property Location"
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=${property.location.coordinates[0]-0.01}%2C${property.location.coordinates[1]-0.01}%2C${property.location.coordinates[0]+0.01}%2C${property.location.coordinates[1]+0.01}&layer=mapnik&marker=${property.location.coordinates[1]}%2C${property.location.coordinates[0]}`}
-        ></iframe>
+        {property?.location?.coordinates ? (
+          <iframe 
+            className={styles.mapIframe}
+            title="Property Location"
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${property.location.coordinates[0]-0.01}%2C${property.location.coordinates[1]-0.01}%2C${property.location.coordinates[0]+0.01}%2C${property.location.coordinates[1]+0.01}&layer=mapnik&marker=${property.location.coordinates[1]}%2C${property.location.coordinates[0]}`}
+          ></iframe>
+        ) : (
+          <div className={styles.mapPlaceholder}>No map available</div>
+        )}
       </div>
 
       <div className={styles.contentWrapper}>
         {/* 2. Property Header */}
         <div className={styles.propertyHeader}>
           <div>
-            <h1 className={styles.propertyTitle}>{property.location.address}</h1>
+            <h1 className={styles.propertyTitle}>{property?.location?.address || property?.title || 'Address Hidden'}</h1>
             <div className={styles.propertyStats}>
-              <span>{property.beds} Beds</span>
+              <span>{property?.beds || 0} Beds</span>
               <span>•</span>
-              <span>{property.baths} Baths</span>
+              <span>{property?.baths || 0} Baths</span>
               <span>•</span>
-              <span>{property.sqft.toLocaleString()} Sqft</span>
+              <span>{(property?.sqft || 0).toLocaleString()} Sqft</span>
               <span>•</span>
-              <span>Built {property.year_built || '2005'}</span>
+              <span>Built {property?.year_built || '2005'}</span>
             </div>
           </div>
           <button className={styles.exportBtn}>

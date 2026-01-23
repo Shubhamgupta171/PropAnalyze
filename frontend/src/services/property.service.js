@@ -12,14 +12,17 @@ const propertyService = {
   },
 
   createProperty: async (propertyData) => {
-    // If there are images, we might need multipart/form-data
-    // For now, assume JSON
-    const response = await api.post('/properties', propertyData);
+    // Check if propertyData is FormData, if not, it will be sent as JSON by default
+    const response = await api.post('/properties', propertyData, {
+      headers: propertyData instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {}
+    });
     return response.data;
   },
 
   updateProperty: async (id, propertyData) => {
-    const response = await api.patch(`/properties/${id}`, propertyData);
+    const response = await api.patch(`/properties/${id}`, propertyData, {
+      headers: propertyData instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {}
+    });
     return response.data;
   },
 

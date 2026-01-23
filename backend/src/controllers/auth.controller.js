@@ -67,5 +67,43 @@ exports.getMe = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updateMe = catchAsync(async (req, res, next) => {
+  // 1) Create error if user POSTs password data
+  if (req.body.password) {
+    return next(
+      new AppError(
+        'This route is not for password updates. Please use /updateMyPassword.',
+        400
+      )
+    );
+  }
+
+  // 2) Filtered out unwanted fields names that are not allowed to be updated
+  const filteredBody = {};
+  const fieldMapping = {
+    name: 'name',
+    email: 'email',
+    phone: 'phone',
+    countryCode: 'country_code',
+    title: 'title'
+  };
+
+  Object.keys(req.body).forEach(el => {
+    if (fieldMapping[el]) filteredBody[fieldMapping[el]] = req.body[el];
+  });
+
+  if (req.file) filteredBody.photo = req.file.path;
+
+  // 3) Update user document
+  const updatedUser = await User.update(req.user.id, filteredBody);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updatedUser,
+    },
+  });
+});
+
 
 // Protect middleware moved to ../middlewares/auth.middleware.js

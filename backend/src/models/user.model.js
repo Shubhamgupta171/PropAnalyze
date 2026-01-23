@@ -32,8 +32,26 @@ class User {
   }
 
   static async findById(id) {
-    const query = 'SELECT id, name, email, role, plan, title, phone, country_code, photo, favorites FROM users WHERE id = $1';
+    const query = 'SELECT id, name, email, role, plan, title, phone, country_code AS "countryCode", photo, favorites FROM users WHERE id = $1';
     const { rows } = await db.query(query, [id]);
+    return rows[0];
+  }
+
+  static async update(id, updates) {
+    const fields = Object.keys(updates);
+    if (fields.length === 0) return this.findById(id);
+
+    const setClause = fields.map((field, i) => `${field} = $${i + 2}`).join(', ');
+    const values = [id, ...Object.values(updates)];
+
+    const query = `
+      UPDATE users
+      SET ${setClause}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING id, name, email, role, plan, title, phone, country_code AS "countryCode", photo, favorites, created_at;
+    `;
+    
+    const { rows } = await db.query(query, values);
     return rows[0];
   }
 

@@ -4,14 +4,16 @@ import MapControls from '../components/specific/MapControls';
 import PropertyCard from '../components/specific/PropertyCard';
 import MapBackground from '../components/common/MapBackground';
 import MapInteractionOverlay from '../components/specific/MapInteractionOverlay';
-import { MapPin } from 'lucide-react';
+import { MapPin, Plus } from 'lucide-react';
 import propertyService from '../services/property.service';
 import toast from 'react-hot-toast';
+import CreatePropertyModal from '../components/specific/CreatePropertyModal';
 
 const Dashboard = () => {
     const [properties, setProperties] = useState([]);
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Zoom and Pan State
     const [zoom, setZoom] = useState(1);
@@ -193,6 +195,42 @@ const Dashboard = () => {
         )}
 
         <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+        
+        {/* Floating Action Button for Adding Property */}
+        <button 
+            onClick={() => setIsModalOpen(true)}
+            style={{
+                position: 'absolute',
+                top: '100px',
+                right: '25px',
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
+                backgroundColor: '#4ade80',
+                color: '#1c1e1d',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 4px 20px rgba(74, 222, 128, 0.4)',
+                zIndex: 100,
+                transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+        >
+            <Plus size={24} />
+        </button>
+
+        <CreatePropertyModal 
+            isOpen={isModalOpen} 
+            onClose={() => setIsModalOpen(false)} 
+            onPropertyCreated={(newProp) => {
+                setProperties([...properties, newProp]);
+                setSelectedProperty(newProp);
+            }}
+        />
       </MapBackground>
     </div>
   );

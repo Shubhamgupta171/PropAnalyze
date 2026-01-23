@@ -31,7 +31,7 @@ exports.getProperty = catchAsync(async (req, res, next) => {
 
 exports.createProperty = catchAsync(async (req, res, next) => {
   if (req.files) {
-    req.body.images = req.files.map(file => `/img/properties/${file.filename}`);
+    req.body.images = req.files.map(file => file.path);
   }
 
   const newProperty = await propertyService.createProperty(req.body, req.user.id);
@@ -47,7 +47,7 @@ exports.createProperty = catchAsync(async (req, res, next) => {
 
 exports.updateProperty = catchAsync(async (req, res, next) => {
   if (req.files) {
-    req.body.images = req.files.map(file => `/img/properties/${file.filename}`);
+    req.body.images = req.files.map(file => file.path);
   }
 
   const updatedProperty = await propertyService.updateProperty(

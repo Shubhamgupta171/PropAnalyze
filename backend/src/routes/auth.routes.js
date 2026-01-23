@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/auth.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
+const uploadMiddleware = require('../middlewares/upload.middleware');
 
 const router = express.Router();
 
@@ -119,7 +120,52 @@ router.post('/login', authController.login);
  *                   type: object
  *                   properties:
  *                     user: { $ref: '#/components/schemas/User' }
+ *
+ * /users/updateMe:
+ *   patch:
+ *     summary: Update current user profile
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               countryCode:
+ *                 type: string
+ *               title:
+ *                 type: string
+ *               photo:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: 'string' }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user: { $ref: '#/components/schemas/User' }
  */
 router.get('/me', authMiddleware.protect, authController.getMe);
+router.patch(
+  '/updateMe', 
+  authMiddleware.protect, 
+  uploadMiddleware.uploadUserPhoto, 
+  authController.updateMe
+);
 
 module.exports = router;

@@ -11,7 +11,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'prop-analyze',
-    allowed_formats: ['jpg', 'png', 'jpeg'],
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
     transformation: [{ width: 1000, height: 1000, crop: 'limit' }],
   },
 });

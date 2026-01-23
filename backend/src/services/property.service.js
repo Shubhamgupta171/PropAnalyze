@@ -58,6 +58,12 @@ class PropertyService {
       try { propertyData.features = JSON.parse(propertyData.features); } catch (e) {}
     }
 
+    // Sanitize numeric fields - convert empty strings to null
+    const numericFields = ['price', 'beds', 'baths', 'sqft', 'year_built', 'hoa_fees', 'days_on_market'];
+    numericFields.forEach(field => {
+      if (propertyData[field] === '') propertyData[field] = null;
+    });
+
     // Filter allowed fields
     const allowedFields = [
       'title', 'description', 'price', 'beds', 'baths', 'sqft', 
@@ -93,6 +99,12 @@ class PropertyService {
     if (typeof updates.features === 'string') {
       try { updates.features = JSON.parse(updates.features); } catch (e) {}
     }
+
+    // Sanitize numeric fields - convert empty strings to null
+    const numericFields = ['price', 'beds', 'baths', 'sqft', 'year_built', 'hoa_fees', 'days_on_market'];
+    numericFields.forEach(field => {
+      if (updates[field] === '') updates[field] = null;
+    });
 
     // Filter allowed fields
     const allowedFields = [

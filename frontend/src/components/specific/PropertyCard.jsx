@@ -13,7 +13,7 @@ const PropertyCard = ({ property }) => {
                 <Heart size={16} color="white" />
             </div>
             <ImageWithFallback 
-                src={property?.img} 
+                src={property?.images?.[0] || property?.img} 
                 alt="Property" 
                 category="house"
                 className={styles.image}
