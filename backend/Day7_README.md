@@ -1,7 +1,7 @@
-# Day 7: Analysis Engine Logic
+# Day 7: Analysis Engine Logic (COMPLETED ✅)
 
 ## Goal
-Implement advanced financial modeling and market aggregation using Raw SQL to give users deep investment insights.
+Implement advanced financial modeling and market aggregation using Raw SQL to give users deep investment insights, and fully integrate these insights into the Property Analysis UI.
 
 ## Checklist
 
@@ -15,24 +15,28 @@ Implement advanced financial modeling and market aggregation using Raw SQL to gi
 - [x] **Market SQL Stats**:
     -   Uses SQL aggregate functions (`AVG`, `MIN`, `MAX`, `COUNT`) to provide market benchmarks.
 
-### 2. API Endpoints
+### 2. Frontend Integration
+- [x] **Analysis Service**: Created `frontend/src/services/analysis.service.js` to interface with backend.
+- [x] **Real-time UI**: Updated `PropertyAnalysis.jsx` to recalculate metrics instantly as user inputs change.
+- [x] **Visualizations**: Integrated dynamic Donut charts and detailed expense breakdowns.
+
+### 3. API Endpoints
 -   **Get ROI**: `GET /api/v1/analysis/roi/:propertyId`
     -   Returns: `{ annualGrossRent, operatingExpenses, noi, capRate, cashOnCash, monthlyMortgage, monthlyCashFlow }`.
 -   **Get Max Offer**: `GET /api/v1/analysis/max-offer/:propertyId?targetCoC=12`
     -   Returns: `{ maxAllowableOffer, belowAsk, targetCoC }`.
 -   **Get Market Overview**: `GET /api/v1/analysis/overview`
 
-### 3. Testing
-1.  **Market Overview**:
-    -   Call `GET /api/v1/analysis/overview`.
-    -   Should see stats for all properties in your PostgreSQL tables.
-2.  **ROI**:
-    -   Call `GET /api/v1/analysis/roi/:id`.
-    -   Verify the **monthlyMortgage** and **monthlyCashFlow** match your manual calculations.
-3.  **Max Offer**:
-    -   Call `GET /api/v1/analysis/max-offer/:id?targetCoC=15`.
-    -   Observe how the price decreases as you increase the target ROI!
+## Documentation & Integration
+- For detailed API usage and `curl` examples, refer to [API_GUIDE.md](./API_GUIDE.md).
+- Frontend team can use the `analysisService` located in `frontend/src/services/analysis.service.js`.
+
+## Verification Steps Taken
+1.  **Market Overview**: Verified via `curl` that global stats are accurately aggregated.
+2.  **ROI**: Verified that entering a lower `purchasePrice` or `interestRate` correctly boosts `cashOnCash`.
+3.  **Max Offer**: Confirmed the solver finds the exact price required to hit target ROIs.
+4.  **UI Feedback**: Confirmed that the "CALCULATING..." state shows up in the UI during debounced updates.
 
 ## Next Steps
-Congratulations! Your backend is now a high-performance, SQL-powered investment machine. You are ready to connect to the React/Next.js frontend.
+Congratulations! Day 7 is officially complete. Both backend and frontend are now unified. You are ready for any further UI polishing or deployment preparation.
 

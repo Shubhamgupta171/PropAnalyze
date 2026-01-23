@@ -92,5 +92,11 @@ router.get('/max-offer/:propertyId', analysisController.getMaxOffer);
  */
 router.get('/overview', analysisController.getMarketOverview);
 
+// History routes (Protected)
+router.use(authMiddleware.protect);
+
+router.get('/history', analysisController.getHistory);
+router.post('/:propertyId', analysisController.saveAnalysis);
+router.delete('/:id', analysisController.deleteAnalysis);
 
 module.exports = router;

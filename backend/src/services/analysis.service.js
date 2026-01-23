@@ -56,7 +56,7 @@ class AnalysisService {
       property: {
         title: property.title,
         price: property.price,
-        address: property.location?.address // Accessing from JSONB
+        address: property.location?.address
       },
       inputs: {
         purchasePrice,
@@ -68,13 +68,19 @@ class AnalysisService {
       metrics: {
         annualGrossRent,
         effectiveGrossIncome,
-        operatingExpenses,
-        noi,
-        annualDebtService,
-        monthlyMortgage,
-        monthlyCashFlow: cashFlow / 12,
-        cashFlow,
-        totalCashInvested,
+        operatingExpenses: parseFloat(operatingExpenses.toFixed(2)),
+        detailedExpenses: {
+          taxes: parseFloat(annualTaxes.toFixed(2)),
+          insurance: parseFloat(annualInsurance.toFixed(2)),
+          management: parseFloat((effectiveGrossIncome * managementFee).toFixed(2)),
+          maintenance: parseFloat((effectiveGrossIncome * 0.05).toFixed(2))
+        },
+        noi: parseFloat(noi.toFixed(2)),
+        annualDebtService: parseFloat(annualDebtService.toFixed(2)),
+        monthlyMortgage: parseFloat(monthlyMortgage.toFixed(2)),
+        monthlyCashFlow: parseFloat((cashFlow / 12).toFixed(2)),
+        annualCashFlow: parseFloat(cashFlow.toFixed(2)),
+        totalCashInvested: parseFloat(totalCashInvested.toFixed(2)),
         capRate: parseFloat(capRate.toFixed(2)),
         cashOnCash: parseFloat(cashOnCash.toFixed(2))
       }
@@ -133,14 +139,41 @@ class AnalysisService {
     if (stats) {
       // PostgreSQL numeric results are strings, convert to numbers
       return {
-        numProperties: parseInt(stats.numproperties),
-        avgPrice: parseFloat(stats.avgprice),
-        minPrice: parseFloat(stats.minprice),
-        maxPrice: parseFloat(stats.maxprice),
-        avgPricePerSqFt: parseFloat(stats.avgpricepersqft)
+        numProperties: parseInt(stats.numproperties || 0),
+        avgPrice: parseFloat(stats.avgprice || 0),
+        minPrice: parseFloat(stats.minprice || 0),
+        maxPrice: parseFloat(stats.maxprice || 0),
+        avgPricePerSqFt: parseFloat(stats.avgpricepersqft || 0)
       };
     }
     return null;
+  }
+
+  async saveAnalysis(userId, propertyId, strategy, metrics, inputs) {
+    const query = `
+      INSERT INTO analyses (user_id, property_id, strategy, metrics, inputs)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+    `;
+    const { rows } = await require('../config/db').query(query, [userId, propertyId, strategy, JSON.stringify(metrics), JSON.stringify(inputs)]);
+    return rows[0];
+  }
+
+  async getHistory(userId) {
+    const query = `
+      SELECT a.*, p.title as property_title, p.location->>'address' as address, (p.images)[1] as img
+      FROM analyses a
+      JOIN properties p ON a.property_id = p.id
+      WHERE a.user_id = $1
+      ORDER BY a.updated_at DESC;
+    `;
+    const { rows } = await require('../config/db').query(query, [userId]);
+    return rows;
+  }
+
+  async deleteAnalysis(userId, analysisId) {
+    const query = 'DELETE FROM analyses WHERE id = $1 AND user_id = $2';
+    await require('../config/db').query(query, [analysisId, userId]);
   }
 }
 

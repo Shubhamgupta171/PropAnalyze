@@ -8,6 +8,8 @@ const globalErrorHandler = require('./middlewares/error.middleware');
 const authRouter = require('./routes/auth.routes');
 const propertyRouter = require('./routes/property.routes');
 const analysisRouter = require('./routes/analysis.routes');
+const portfolioRouter = require('./routes/portfolio.routes');
+const reportRouter = require('./routes/report.routes');
 const { swaggerUi, specs } = require('./config/swagger');
 
 const app = express();
@@ -37,6 +39,8 @@ app.use(express.static('public'));
 app.use('/api/v1/users', authRouter);
 app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/analysis', analysisRouter);
+app.use('/api/v1/portfolios', portfolioRouter);
+app.use('/api/v1/reports', reportRouter);
 
 // Check health
 app.get('/api/v1/health', (req, res) => {

@@ -42,3 +42,36 @@ exports.getMarketOverview = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.saveAnalysis = catchAsync(async (req, res, next) => {
+  const { propertyId } = req.params;
+  const { strategy, metrics, inputs } = req.body;
+  const userId = req.user.id;
+
+  const analysis = await analysisService.saveAnalysis(userId, propertyId, strategy, metrics, inputs);
+
+  res.status(201).json({
+    status: 'success',
+    data: { analysis }
+  });
+});
+
+exports.getHistory = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const history = await analysisService.getHistory(userId);
+
+  res.status(200).json({
+    status: 'success',
+    results: history.length,
+    data: { history }
+  });
+});
+
+exports.deleteAnalysis = catchAsync(async (req, res, next) => {
+  await analysisService.deleteAnalysis(req.user.id, req.params.id);
+
+  res.status(204).json({
+    status: 'success',
+    data: null
+  });
+});

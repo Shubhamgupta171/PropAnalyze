@@ -1,9 +1,11 @@
 # PropAnalyze Backend
 
 ## Overview
+
 The PropAnalyze Backend is a robust RESTful API built with Node.js and Express. It serves as the core processing unit for the PropAnalyze application, handling data persistence, business logic, and external integrations.
 
 ## Architecture
+
 The application follows a **Layered Architecture** to ensure separation of concerns and maintainability, optimized for performance using raw SQL:
 
 1.  **Routes Layer** (`src/routes`): Defines API endpoints and routes requests to the appropriate controllers.
@@ -13,15 +15,17 @@ The application follows a **Layered Architecture** to ensure separation of conce
 5.  **Utils & Middlewares**: Shared utilities and middleware functions (e.g., error handling, logging, Cloudinary uploads).
 
 ## Tech Stack
--   **Runtime**: Node.js
--   **Framework**: Express.js
--   **Database**: PostgreSQL (via `pg` driver)
--   **Image Hosting**: Cloudinary
--   **Environment Management**: dotenv
--   **Security**: Helmet, CORS
--   **Logging**: Morgan
+
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: PostgreSQL (via `pg` driver)
+- **Image Hosting**: Cloudinary
+- **Environment Management**: dotenv
+- **Security**: Helmet, CORS
+- **Logging**: Morgan
 
 ## Directory Structure
+
 ```
 backend/
 ├── src/
@@ -40,25 +44,29 @@ backend/
 ```
 
 ## Prerequisites
--   Node.js (v18+ recommended)
--   npm or yarn
--   PostgreSQL instance (Local or Remote)
+
+- Node.js (v18+ recommended)
+- npm or yarn
+- PostgreSQL instance (Local or Remote)
 
 ## Installation & Setup
 
 1.  **Clone the repository**:
+
     ```bash
     git clone <repository-url>
     cd PropAnalyze/backend
     ```
 
 2.  **Install Dependencies**:
+
     ```bash
     npm install
     ```
 
 3.  **Environment Configuration**:
     Create a `.env` file in the root `backend` directory:
+
     ```env
     PORT=5000
     DATABASE_URL=postgres://username:password@localhost:5432/propanalyze
@@ -77,25 +85,28 @@ backend/
 ## Running the Application
 
 ### Development Mode
+
 ```bash
 npm run dev
 ```
 
 ### Production Mode
+
 ```bash
 npm start
 ```
 
 ## API Endpoints
+
 The API is versioned at `/api/v1`. Key resources include:
 
-*   **Users/Auth**: `/api/v1/users` - Authentication, profiles, and subscription plans.
-*   **Properties**: `/api/v1/properties` - Real estate listings with advanced **Geospatial Search** (`/properties-within`) and specialized **seeding scripts** for diverse testing.
-*   **Analysis**: `/api/v1/analysis` - Investment underwriting and Max Offer logic.
-*   **Health Check**: `/api/v1/health` - Application health status.
-
+- **Users/Auth**: `/api/v1/users` - Authentication, profiles, and subscription plans.
+- **Properties**: `/api/v1/properties` - Real estate listings with advanced **Geospatial Search** (`/properties-within`) and specialized **seeding scripts** for diverse testing.
+- **Analysis**: `/api/v1/analysis` - Investment underwriting and Max Offer logic.
+- **Health Check**: `/api/v1/health` - Application health status.
 
 ## Error Handling
+
 The application uses a centralized error handling mechanism. All errors are caught by the global error handler middleware (`src/middlewares/error.middleware.js`), ensuring consistent JSON error responses.
 
 ## Development Progress
@@ -103,32 +114,33 @@ The application uses a centralized error handling mechanism. All errors are caug
 ### Day 6: File Uploads & Media Handling ✅
 
 #### Goal
+
 Enable image uploads for properties so that each listing can have real photo galleries.
 
 #### Implementation
 
 ##### 1. File Upload Infrastructure
+
 - **Cloudinary Setup** (`src/config/cloudinary.config.js`):
   - Connects to Cloudinary cloud for professional image hosting.
-  
 - **Multer Cloudinary Storage** (`src/middlewares/upload.middleware.js`):
   - Configured to stream files directly to Cloudinary.
   - Filters files to ensure only images are uploaded.
-  
 - **Image Accessibility**:
   - Images are accessible via secure Cloudinary HTTPS URLs.
   - Stored in the database as an array of strings in the `images` field.
 
 ##### 2. API Updates
+
 - **Create Property**: `POST /properties`
   - Accepts `multipart/form-data`.
   - Field: `images` (Max 10 files).
-  
 - **Update User Profile**: `PATCH /users/updateMe`
   - Accepts `multipart/form-data`.
   - Field: `photo`.
 
 ##### 3. Testing with Postman
+
 1. **Headers**:
    - `Authorization: Bearer <token>`
 
@@ -140,5 +152,59 @@ Enable image uploads for properties so that each listing can have real photo gal
    - Check Response: `images` array should contain full Cloudinary URLs.
 
 #### Key Points
+
 - Switched from local storage to **Cloudinary** to ensure images persist in production and load faster via global CDN.
 - Images are securely uploaded and referenced via HTTPS URLs.
+
+### Day 7: Analysis Engine Logic ✅
+
+#### Goal
+Implement advanced financial modeling and market aggregation using Raw SQL to give users deep investment insights, and fully integrate these insights into the Property Analysis UI.
+
+#### Implementation
+
+##### 1. Investment Underwriting Engine
+- **ROI Calculator** (`src/services/analysis.service.js`):
+  - Advanced math for NOI, Cap Rate, and Cash-on-Cash.
+  - Granular expense breakdown (Taxes, Insurance, Management, Maintenance).
+  - Dynamic what-if scenarios supporting user-driven overrides.
+
+##### 2. Max Allowable Offer (MAO) Solver
+- **Binary Search Solver**:
+  - Automatically calculates the maximum price an investor should pay to hit a target CoC percentage.
+
+##### 3. Market Aggregation
+- **SQL Benchmark Stats**:
+  - Uses optimized SQL to deliver global market averages and benchmarks.
+
+##### 4. Frontend Integration
+- **Real-time UI**: Full integration with `PropertyAnalysis.jsx` using a dedicated frontend service.
+- **Visualizations**: Added Donut charts and expense breakdowns for better data consumption.
+
+#### Verification
+- Verified logic with `curl` API tests.
+- Manually tested real-time UI updates on property input changes.
+
+**Day 7 Task Status: COMPLETED ✅**
+
+### Day 8: User Dashboard & History ✅
+
+#### Goal
+Implement persistent analysis history to allow users to save and revisit their investment underwriting models.
+
+#### Implementation
+- **Analysis History Service**: Created logic to save property-specific input assumptions and calculated metrics.
+- **Persistent Storage**: Saved to `analyses` table in PostgreSQL.
+- **Frontend Integration**: Updated the History tab and added a "Save to History" button on the analysis page.
+
+### Day 9: Portfolios & Reports ✅
+
+#### Goal
+Enable portfolio management and professional report tracking.
+
+#### Implementation
+- **Portfolio Service**: Created logic for many-to-many property-portfolio associations.
+- **Report Tracking**: Built a system to log generated PDF reports with Cloudinary links.
+- **Dynamic UI**: Connected the Reports page to the live backend database.
+
+**Project Status: Ready for Production Hardening (Day 10) 🚀**
