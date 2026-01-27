@@ -95,8 +95,93 @@ router.get('/overview', analysisController.getMarketOverview);
 // History routes (Protected)
 router.use(authMiddleware.protect);
 
+/**
+ * @swagger
+ * /analysis/history:
+ *   get:
+ *     summary: Get all past analyses for the current user
+ *     tags: [Analysis]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string }
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page: { type: integer }
+ *                     limit: { type: integer }
+ *                     totalResults: { type: integer }
+ *                     totalPages: { type: integer }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     history:
+ *                       type: array
+ *                       items: { $ref: '#/components/schemas/Analysis' }
+ */
 router.get('/history', analysisController.getHistory);
+
+/**
+ * @swagger
+ * /analysis/{propertyId}:
+ *   post:
+ *     summary: Save an analysis for a property
+ *     tags: [Analysis]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: propertyId
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [strategy, metrics, inputs]
+ *             properties:
+ *               strategy: { type: string }
+ *               metrics: { type: object }
+ *               inputs: { type: object }
+ *     responses:
+ *       201:
+ *         description: Created
+ */
 router.post('/:propertyId', analysisController.saveAnalysis);
+
+/**
+ * @swagger
+ * /analysis/{id}:
+ *   delete:
+ *     summary: Remove an analysis from history
+ *     tags: [Analysis]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       204:
+ *         description: No Content
+ */
 router.delete('/:id', analysisController.deleteAnalysis);
 
 module.exports = router;

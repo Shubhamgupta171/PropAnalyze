@@ -48,6 +48,10 @@ exports.saveAnalysis = catchAsync(async (req, res, next) => {
   const { strategy, metrics, inputs } = req.body;
   const userId = req.user.id;
 
+  if (!strategy || !metrics || !inputs) {
+    return next(new AppError('Strategy, metrics, and inputs are required', 400));
+  }
+
   const analysis = await analysisService.saveAnalysis(userId, propertyId, strategy, metrics, inputs);
 
   res.status(201).json({
@@ -58,12 +62,13 @@ exports.saveAnalysis = catchAsync(async (req, res, next) => {
 
 exports.getHistory = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
-  const history = await analysisService.getHistory(userId);
+  const result = await analysisService.getHistory(userId, req.query);
 
   res.status(200).json({
     status: 'success',
-    results: history.length,
-    data: { history }
+    results: result.history.length,
+    pagination: result.pagination,
+    data: { history: result.history }
   });
 });
 

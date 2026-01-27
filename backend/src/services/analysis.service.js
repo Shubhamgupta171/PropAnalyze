@@ -156,24 +156,44 @@ class AnalysisService {
       RETURNING *;
     `;
     const { rows } = await require('../config/db').query(query, [userId, propertyId, strategy, JSON.stringify(metrics), JSON.stringify(inputs)]);
+    console.log(`[AnalysisService] Analysis saved for user ${userId}, property ${propertyId}`);
     return rows[0];
   }
 
-  async getHistory(userId) {
+  async getHistory(userId, queryParams = {}) {
+    const page = parseInt(queryParams.page) || 1;
+    const limit = parseInt(queryParams.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const countQuery = 'SELECT COUNT(*) FROM analyses WHERE user_id = $1';
+    const { rows: countRows } = await require('../config/db').query(countQuery, [userId]);
+    const totalResults = parseInt(countRows[0].count || 0);
+
     const query = `
       SELECT a.*, p.title as property_title, p.location->>'address' as address, (p.images)[1] as img
       FROM analyses a
       JOIN properties p ON a.property_id = p.id
       WHERE a.user_id = $1
-      ORDER BY a.updated_at DESC;
+      ORDER BY a.updated_at DESC
+      LIMIT $2 OFFSET $3;
     `;
-    const { rows } = await require('../config/db').query(query, [userId]);
-    return rows;
+    const { rows } = await require('../config/db').query(query, [userId, limit, offset]);
+    
+    return {
+      history: rows,
+      pagination: {
+        page,
+        limit,
+        totalResults,
+        totalPages: Math.ceil(totalResults / limit)
+      }
+    };
   }
 
   async deleteAnalysis(userId, analysisId) {
     const query = 'DELETE FROM analyses WHERE id = $1 AND user_id = $2';
     await require('../config/db').query(query, [analysisId, userId]);
+    console.log(`[AnalysisService] Analysis ${analysisId} deleted by user ${userId}`);
   }
 }
 
