@@ -12,6 +12,7 @@ router.route('/')
 
 router.route('/:id')
   .get(portfolioController.getPortfolio)
+  .patch(portfolioController.updatePortfolio)
   .delete(portfolioController.deletePortfolio);
 
 router.post('/:id/properties', portfolioController.addProperty);

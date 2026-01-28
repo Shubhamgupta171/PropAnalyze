@@ -9,6 +9,7 @@ import PropertyAnalysis from './pages/PropertyAnalysis';
 import History from './pages/History';
 import Settings from './pages/Settings';
 import Reports from './pages/Reports';
+import Portfolios from './pages/Portfolios';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -62,6 +63,7 @@ function App() {
             <Route path="history" element={<History />} />
             <Route path="settings" element={<Settings />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="portfolios" element={<Portfolios />} />
             <Route path="*" element={<Navigate to="/map" replace />} />
           </Route>
         </Routes>

@@ -57,6 +57,22 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink 
+          to="/portfolios" 
+          className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+        >
+          <Layers size={20} />
+          <span>Portfolios</span>
+        </NavLink>
+
+        <NavLink 
+          to="/reports" 
+          className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
+        >
+          <CheckSquare size={20} />
+          <span>Reports</span>
+        </NavLink>
+
+        <NavLink 
           to="/settings" 
           className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
         >

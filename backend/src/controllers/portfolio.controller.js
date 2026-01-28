@@ -32,3 +32,9 @@ exports.deletePortfolio = catchAsync(async (req, res, next) => {
   await portfolioService.deletePortfolio(req.user.id, req.params.id);
   res.status(204).json({ status: 'success', data: null });
 });
+
+exports.updatePortfolio = catchAsync(async (req, res, next) => {
+  const portfolio = await portfolioService.updatePortfolio(req.user.id, req.params.id, req.body);
+  if (!portfolio) return next(new AppError('Portfolio not found', 404));
+  res.status(200).json({ status: 'success', data: { portfolio } });
+});

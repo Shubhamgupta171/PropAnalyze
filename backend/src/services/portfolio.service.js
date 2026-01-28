@@ -67,6 +67,17 @@ class PortfolioService {
     const query = 'DELETE FROM portfolios WHERE id = $1 AND user_id = $2';
     await pool.query(query, [id, userId]);
   }
+
+  async updatePortfolio(userId, id, data) {
+    const query = `
+      UPDATE portfolios 
+      SET name = $1, description = $2, updated_at = NOW()
+      WHERE id = $3 AND user_id = $4
+      RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [data.name, data.description, id, userId]);
+    return rows[0];
+  }
 }
 
 module.exports = new PortfolioService();

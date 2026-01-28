@@ -1,14 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { CheckCircle2, FileText, ChevronDown, Info, TrendingUp, DollarSign, Plus } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CheckCircle2, FileText, ChevronDown, Info, TrendingUp, DollarSign, Plus, Layers, Download } from 'lucide-react';
 import styles from './PropertyAnalysisRefactor.module.css';
 import propertyService from '../services/property.service';
 import analysisService from '../services/analysis.service';
+import portfolioService from '../services/portfolio.service';
+import reportService from '../services/report.service';
 import toast from 'react-hot-toast';
 import _ from 'lodash';
 
 const PropertyAnalysis = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [property, setProperty] = useState(null);
+  const [portfolios, setPortfolios] = useState([]);
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState('');
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [maxOffer, setMaxOffer] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -114,6 +120,51 @@ const PropertyAnalysis = () => {
     }
   };
 
+  const handleAddToPortfolio = async () => {
+    if (!selectedPortfolioId) {
+      toast.error('Please select a portfolio');
+      return;
+    }
+    try {
+      await portfolioService.addProperty(selectedPortfolioId, id);
+      toast.success('Property added to portfolio!');
+      setShowPortfolioModal(false);
+    } catch (error) {
+      toast.error('Failed to add property to portfolio');
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    setCalculating(true);
+    try {
+      const reportData = {
+        propertyId: id,
+        analysisId: null, // Optional
+        name: `Report - ${property.location.address || property.title}`,
+        fileUrl: `https://pdf-generator.example.com/mock/${id}`, // Mock URL
+        status: 'Ready'
+      };
+      await reportService.createReport(reportData);
+      toast.success('Report generated successfully! View it in the Reports tab.');
+    } catch (error) {
+      toast.error('Failed to generate report');
+    } finally {
+      setCalculating(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchPortfolios = async () => {
+      try {
+        const response = await portfolioService.getPortfolios();
+        setPortfolios(response.data.portfolios);
+      } catch (error) {
+        console.error('Error fetching portfolios:', error);
+      }
+    };
+    fetchPortfolios();
+  }, []);
+
   if (loading) return <div className={styles.loading}>Loading analysis...</div>;
   if (!property) return <div className={styles.error}>Property not found.</div>;
 
@@ -155,16 +206,60 @@ const PropertyAnalysis = () => {
             </div>
           </div>
           <div style={{display:'flex', gap:'12px'}}>
+              <button className={styles.exportBtn} onClick={() => setShowPortfolioModal(true)}>
+                <Layers size={18} color="#22c55e" />
+                Add to Portfolio
+              </button>
               <button className={styles.exportBtn} onClick={handleSaveAnalysis} disabled={calculating}>
                 <Plus size={18} color="#22c55e" />
-                Save to History
+                Save History
               </button>
-              <button className={styles.exportBtn}>
+              <button className={styles.exportBtn} onClick={handleGenerateReport} disabled={calculating}>
                 <FileText size={18} color="#22c55e" />
-                Export PDF
+                Generate Report
               </button>
           </div>
         </div>
+
+        {/* Portfolio Modal */}
+        {showPortfolioModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: '#1c1e1d', padding: '32px', borderRadius: '16px',
+              width: '100%', maxWidth: '400px', border: '1px solid #333'
+            }}>
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: 'white' }}>Select Portfolio</h2>
+              <select 
+                value={selectedPortfolioId}
+                onChange={(e) => setSelectedPortfolioId(e.target.value)}
+                style={{ width: '100%', padding: '12px', backgroundColor: '#0f1110', border: '1px solid #333', borderRadius: '8px', color: 'white', marginBottom: '1.5rem' }}
+              >
+                <option value="">Select a portfolio...</option>
+                {portfolios.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  onClick={() => setShowPortfolioModal(false)}
+                  style={{ flex: 1, padding: '12px', background: 'none', border: '1px solid #333', borderRadius: '8px', color: 'white', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleAddToPortfolio}
+                  style={{ flex: 1, padding: '12px', backgroundColor: 'var(--primary-green)', border: 'none', borderRadius: '8px', color: 'black', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 3. Strategy Tabs */}
         <div className={styles.strategyTabs}>
