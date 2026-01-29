@@ -43,6 +43,11 @@ The documentation is now **schema-backed**. Scroll to the **"Schemas"** section 
 All API calls from the frontend should use this base URL:
 `http://localhost:5001/api/v1`
 
+### 4. Rate Limiting
+To ensure fair usage and prevent abuse, API requests are rate-limited:
+- **Limit**: 100 requests per hour per IP.
+- **Headers**: Check `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers in the response to monitor your usage.
+- **Exceeded**: If you exceed the limit, you will receive a `429 Too Many Requests` error.
 
 ## 💬 Support
 If you find any discrepancy between the docs and the UI designs, please reach out to the backend team.

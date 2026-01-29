@@ -245,6 +245,61 @@ const properties = [
     coords: [-122.4344, 37.7346],
     img: 'https://images.unsplash.com/photo-1600585154526-990dcea4d4d9?auto=format&fit=crop&w=800&q=80',
     status: 'active'
+  },
+  {
+    title: 'Pending Sale in Haight Ashbury',
+    price: 900000,
+    beds: 2,
+    baths: 1,
+    sqft: 950,
+    address: '1500 Haight St, San Francisco, CA',
+    coords: [-122.4484, 37.7696],
+    img: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80',
+    status: 'pending'
+  },
+  {
+    title: 'Recently Sold in Marina',
+    price: 2500000,
+    beds: 3,
+    baths: 2.5,
+    sqft: 2000,
+    address: '2200 Chestnut St, San Francisco, CA',
+    coords: [-122.4364, 37.8006],
+    img: 'https://images.unsplash.com/photo-1600596542815-3ad179b868bd?auto=format&fit=crop&w=800&q=80',
+    status: 'sold'
+  },
+  {
+    title: 'Affordable Condo in Outer Mission',
+    price: 500000,
+    beds: 1,
+    baths: 1,
+    sqft: 600,
+    address: '5000 Mission St, San Francisco, CA',
+    coords: [-122.4394, 37.7216],
+    img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+    status: 'active'
+  },
+  {
+    title: 'Grand Estate in Sea Cliff',
+    price: 8000000,
+    beds: 6,
+    baths: 7,
+    sqft: 6000,
+    address: '800 El Camino Del Mar, San Francisco, CA',
+    coords: [-122.4934, 37.7876],
+    img: 'https://images.unsplash.com/photo-1613545325278-f24b0cae1224?auto=format&fit=crop&w=800&q=80',
+    status: 'active'
+  },
+  {
+    title: 'Compact Studio in Tenderloin',
+    price: 400000,
+    beds: 0,
+    baths: 1,
+    sqft: 400,
+    address: '400 Eddy St, San Francisco, CA',
+    coords: [-122.4134, 37.7836],
+    img: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
+    status: 'active'
   }
 ];
 

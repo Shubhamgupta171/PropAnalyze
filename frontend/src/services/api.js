@@ -21,4 +21,26 @@ api.interceptors.request.use(
   }
 );
 
+// Add a response interceptor to handle global errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // Handle Rate Limiting
+      if (error.response.status === 429) {
+        console.error('Rate limit exceeded. Please try again later.');
+        // You could also emit an event or show a toast notification here
+        alert('You are making too many requests. Please slow down.');
+      }
+      
+      // Handle Unauthorized
+      if (error.response.status === 401) {
+        console.warn('Unauthorized access. Redirecting to login...');
+        // Optional: localStorage.removeItem('token'); window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

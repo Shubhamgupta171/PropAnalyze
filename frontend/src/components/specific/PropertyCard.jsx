@@ -8,7 +8,7 @@ const PropertyCard = ({ property }) => {
   return (
     <div className={styles.cardContainer} onClick={(e) => e.stopPropagation()}>
        <div className={styles.imageSection}>
-            <div className={styles.badge}>Active 2d</div>
+            <div className={styles.badge}>{(property?.status || 'Active').charAt(0).toUpperCase() + (property?.status || 'Active').slice(1)}</div>
             <div className={styles.favoriteBtn}>
                 <Heart size={16} color="white" />
             </div>

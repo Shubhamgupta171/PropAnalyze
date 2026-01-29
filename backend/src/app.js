@@ -20,6 +20,15 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 // Set security HTTP headers
 app.use(helmet({ contentSecurityPolicy: false }));
 
+// Rate limiting to prevent brute-force attacks
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 60 * 60 * 1000, // 1 hour
+  message: 'Too many requests from this IP, please try again in an hour!'
+});
+app.use('/api', limiter);
+
 // Implement CORS
 app.use(cors());
 

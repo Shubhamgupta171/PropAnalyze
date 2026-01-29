@@ -118,3 +118,7 @@ CREATE TABLE IF NOT EXISTS reports (
 CREATE INDEX IF NOT EXISTS idx_properties_location ON properties USING GIN (location);
 CREATE INDEX IF NOT EXISTS idx_analyses_user_property ON analyses (user_id, property_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_property ON reviews (property_id);
+CREATE INDEX IF NOT EXISTS idx_properties_price ON properties (price);
+CREATE INDEX IF NOT EXISTS idx_properties_beds ON properties (beds);
+CREATE INDEX IF NOT EXISTS idx_properties_category ON properties (category);
+CREATE INDEX IF NOT EXISTS idx_properties_agent ON properties (agent_id);
