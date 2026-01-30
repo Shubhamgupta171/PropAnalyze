@@ -3,11 +3,17 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
 exports.getAllProperties = catchAsync(async (req, res, next) => {
-  const properties = await propertyService.getAllProperties(req.query);
+  const { properties, total, page, limit, totalPages } = await propertyService.getAllProperties(req.query);
 
   res.status(200).json({
     status: 'success',
     results: properties.length,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages
+    },
     data: {
       properties,
     },

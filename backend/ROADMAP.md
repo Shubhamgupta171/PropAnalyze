@@ -83,3 +83,21 @@ This document outlines the 10-day plan to build the complete backend for PropAna
 - [ ] Postman Collection documentation.
 - [ ] Final end-to-end testing.
 - [ ] **Deliverable**: Production-ready Backend.
+
+---
+
+## 📅 Phase 4: Enterprise Features (Days 11-12)
+
+### Day 11: Advanced Search Engine
+**Goal**: Handle scale with database-level filtering and pagination.
+- [ ] Refactor `Property.findAll` for dynamic SQL generation.
+- [ ] Implement Pagination (Page/Limit).
+- [ ] Add Sorting options (Price, Date, ROI).
+- [ ] **Deliverable**: High-performance Search API.
+
+### Day 12: PDF Reporting Engine
+**Goal**: Generate professional investment packets.
+- [ ] Integrate PDF generation library (Puppeteer/PDFKit).
+- [ ] Design HTML Report Template.
+- [ ] Create generation endpoint returning file stream or URL.
+- [ ] **Deliverable**: Downloadable Investment Reports.

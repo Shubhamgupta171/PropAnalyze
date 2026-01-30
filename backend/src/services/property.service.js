@@ -4,30 +4,7 @@ const APIFeatures = require('../utils/APIFeatures');
 
 class PropertyService {
   async getAllProperties(queryString) {
-    const features = new APIFeatures('properties p', queryString)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-
-    const { query, params } = features.build();
-    // Inject a JOIN to get the latest analysis metrics for each property
-    const finalQuery = `
-      SELECT sub.*, 
-             (a.metrics->>'capRate')::numeric as latest_cap_rate,
-             (a.metrics->>'cashOnCash')::numeric as latest_coc
-      FROM (${query}) sub
-      LEFT JOIN LATERAL (
-        SELECT metrics 
-        FROM analyses 
-        WHERE property_id = sub.id 
-        ORDER BY updated_at DESC 
-        LIMIT 1
-      ) a ON true;
-    `;
-    
-    const { rows } = await require('../config/db').query(finalQuery, params);
-    return rows;
+    return await Property.findAll(queryString);
   }
 
   async getPropertyById(id) {

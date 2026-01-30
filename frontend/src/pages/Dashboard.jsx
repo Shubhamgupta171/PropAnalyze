@@ -24,7 +24,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchProperties = async () => {
             try {
-                const response = await propertyService.getAllProperties();
+                const response = await propertyService.getAllProperties({ limit: 100 });
                 const fetchedProperties = response.status === 'success' ? response.data.properties : [];
                 setProperties(fetchedProperties);
                 if (fetchedProperties.length > 0) {

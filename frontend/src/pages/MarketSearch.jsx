@@ -24,10 +24,10 @@ const MarketSearch = () => {
     try {
       // Build advanced query params
       const apiParams = { ...params };
-      if (filters.minPrice) apiParams['price[gte]'] = filters.minPrice;
-      if (filters.maxPrice) apiParams['price[lte]'] = filters.maxPrice;
-      if (filters.minBeds) apiParams['beds[gte]'] = filters.minBeds;
-      if (searchQuery) apiParams['title'] = searchQuery;
+      if (filters.minPrice) apiParams['minPrice'] = filters.minPrice;
+      if (filters.maxPrice) apiParams['maxPrice'] = filters.maxPrice;
+      if (filters.minBeds) apiParams['minBeds'] = filters.minBeds;
+      if (searchQuery) apiParams['search'] = searchQuery;
       if (priceFilter) apiParams['sort'] = priceFilter;
 
       const response = await propertyService.getAllProperties(apiParams);
