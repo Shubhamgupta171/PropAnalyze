@@ -105,5 +105,41 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.toggleFavorite = catchAsync(async (req, res, next) => {
+  const { propertyId } = req.body;
+  
+  if (!propertyId) {
+    return next(new AppError('Property ID is required', 400));
+  }
 
+  // Reload user to get fresh favorites
+  const user = await User.findById(req.user.id);
+  let favorites = user.favorites || [];
+  
+  // Ensure favorites is an array
+  if (!Array.isArray(favorites)) favorites = [];
+  
+  // Convert propertyId to string for consistent comparison if needed, 
+  // but usually IDs are strings or integers. Let's handle both string/int mix.
+  const strFavorites = favorites.map(String);
+  const strId = String(propertyId);
+  
+  const index = strFavorites.indexOf(strId);
+  
+  if (index === -1) {
+    favorites.push(propertyId); // Add
+  } else {
+    // Remove by index from original array (assuming 1-to-1 conversion preservation or just filter)
+    favorites = favorites.filter(fav => String(fav) !== strId);
+  }
+
+  const updatedFavorites = await User.updateFavorites(req.user.id, favorites);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      favorites: updatedFavorites
+    }
+  });
+});
 // Protect middleware moved to ../middlewares/auth.middleware.js

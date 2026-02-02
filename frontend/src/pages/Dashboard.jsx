@@ -21,25 +21,51 @@ const Dashboard = () => {
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-    useEffect(() => {
-        const fetchProperties = async () => {
-            try {
-                const response = await propertyService.getAllProperties({ limit: 100 });
-                const fetchedProperties = response.status === 'success' ? response.data.properties : [];
-                setProperties(fetchedProperties);
-                if (fetchedProperties.length > 0) {
-                    setSelectedProperty(fetchedProperties[0]);
-                }
-            } catch (error) {
-                console.error('Error fetching properties:', error);
-                toast.error('Failed to load properties for dashboard');
-            } finally {
-                setLoading(false);
-            }
-        };
+    const [filters, setFilters] = useState({
+        minPrice: '',
+        maxPrice: '',
+        minBeds: '',
+        minBaths: '',
+        category: '',
+        search: ''
+    });
 
+    const fetchProperties = async (currentFilters = filters) => {
+        setLoading(true);
+        try {
+            const apiParams = { limit: 100 };
+            if (currentFilters.minPrice) apiParams.minPrice = currentFilters.minPrice;
+            if (currentFilters.maxPrice) apiParams.maxPrice = currentFilters.maxPrice;
+            if (currentFilters.minBeds) apiParams.minBeds = currentFilters.minBeds;
+            if (currentFilters.minBaths) apiParams.minBaths = currentFilters.minBaths;
+            if (currentFilters.category) apiParams.category = currentFilters.category;
+            if (currentFilters.search) apiParams.search = currentFilters.search;
+
+            const response = await propertyService.getAllProperties(apiParams);
+            const fetchedProperties = response.status === 'success' ? response.data.properties : [];
+            setProperties(fetchedProperties);
+            if (fetchedProperties.length > 0 && !selectedProperty) {
+                setSelectedProperty(fetchedProperties[0]);
+            } else if (fetchedProperties.length === 0) {
+                setSelectedProperty(null);
+            }
+        } catch (error) {
+            console.error('Error fetching properties:', error);
+            toast.error('Failed to load properties');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchProperties();
     }, []);
+
+    const handleFilterChange = (newFilters) => {
+        const updatedFilters = { ...filters, ...newFilters };
+        setFilters(updatedFilters);
+        fetchProperties(updatedFilters);
+    };
 
     // Zoom Handlers
     const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
@@ -96,7 +122,7 @@ const Dashboard = () => {
         style={{ width: '100%', height: '100%', overflow: 'hidden', position: 'relative' }}
     >
       <MapBackground zoom={zoom} offset={offset}>
-        <MapHeader />
+        <MapHeader filters={filters} onFilterChange={handleFilterChange} />
 
         {/* Pins Transformation Layer - Match Background */}
         <div style={{

@@ -24,11 +24,17 @@ const updateMe = async (formData) => {
   return response.data;
 };
 
+const toggleFavorite = async (propertyId) => {
+  const response = await api.patch('/users/toggleFavorite', { propertyId });
+  return response.data;
+};
+
 const authService = {
   login,
   signup,
   getMe,
   updateMe,
+  toggleFavorite,
 };
 
 export default authService;

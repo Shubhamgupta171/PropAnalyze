@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle2, FileText, ChevronDown, Info, TrendingUp, DollarSign, Plus, Layers, Download } from 'lucide-react';
 import styles from './PropertyAnalysisRefactor.module.css';
@@ -7,6 +8,7 @@ import portfolioService from '../services/portfolio.service';
 import reportService from '../services/report.service';
 import toast from 'react-hot-toast';
 import _ from 'lodash';
+
 
 const PropertyAnalysis = () => {
   const { id } = useParams();
@@ -137,21 +139,30 @@ const PropertyAnalysis = () => {
   const handleGenerateReport = async () => {
     setCalculating(true);
     try {
-      const reportData = {
-        propertyId: id,
-        analysisId: null, // Optional
-        name: `Report - ${property.location.address || property.title}`,
-        fileUrl: `https://pdf-generator.example.com/mock/${id}`, // Mock URL
-        status: 'Ready'
-      };
-      await reportService.createReport(reportData);
-      toast.success('Report generated successfully! View it in the Reports tab.');
+      // First, save the analysis to get an analysis ID
+      const savedAnalysis = await analysisService.saveAnalysis(id, {
+        strategy: activeStrategy,
+        metrics: analysis.metrics,
+        inputs: assumptions
+      });
+      
+      const analysisId = savedAnalysis.data.analysis.id;
+      
+      // Generate PDF report
+      const result = await reportService.generateReport(id, analysisId);
+      
+      toast.success('PDF Report generated successfully! View it in the Reports tab.');
+      
+      // Optional: Navigate to reports page
+      // navigate('/reports');
     } catch (error) {
-      toast.error('Failed to generate report');
+      console.error('Report generation error:', error);
+      toast.error(error.response?.data?.message || 'Failed to generate report');
     } finally {
       setCalculating(false);
     }
   };
+
 
   useEffect(() => {
     const fetchPortfolios = async () => {

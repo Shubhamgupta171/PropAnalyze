@@ -6,6 +6,7 @@ import styles from './MarketSearch.module.css';
 import ImageWithFallback from '../components/common/ImageWithFallback';
 import propertyService from '../services/property.service';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 const MarketSearch = () => {
   const [properties, setProperties] = useState([]);
@@ -16,8 +17,12 @@ const MarketSearch = () => {
   const [filters, setFilters] = useState({
     minPrice: '',
     maxPrice: '',
-    minBeds: ''
+    minBeds: '',
+    minBaths: '',
+    category: ''
   });
+  
+  const { user, togglePropertyFavorite } = useAuth();
 
   const fetchProperties = async (params = {}) => {
     setLoading(true);
@@ -27,6 +32,8 @@ const MarketSearch = () => {
       if (filters.minPrice) apiParams['minPrice'] = filters.minPrice;
       if (filters.maxPrice) apiParams['maxPrice'] = filters.maxPrice;
       if (filters.minBeds) apiParams['minBeds'] = filters.minBeds;
+      if (filters.minBaths) apiParams['minBaths'] = filters.minBaths;
+      if (filters.category) apiParams['category'] = filters.category;
       if (searchQuery) apiParams['search'] = searchQuery;
       if (priceFilter) apiParams['sort'] = priceFilter;
 
@@ -53,6 +60,17 @@ const MarketSearch = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFavoriteClick = async (e, propertyId) => {
+      e.preventDefault(); // Prevent link navigation if wrapped
+      if (!user) {
+          toast.error('Please login to save favorites');
+          return;
+      }
+      await togglePropertyFavorite(propertyId);
+      // No need to manually update UI state as useAuth updates user which re-renders this
+      toast.success('Favorites updated');
   };
 
   useEffect(() => {
@@ -145,6 +163,26 @@ const MarketSearch = () => {
                          <label>Min Beds</label>
                          <input type="number" value={filters.minBeds} onChange={e => setFilters({...filters, minBeds: e.target.value})} placeholder="3" />
                       </div>
+                      <div className={styles.filterGroup}>
+                         <label>Min Baths</label>
+                         <input type="number" value={filters.minBaths} onChange={e => setFilters({...filters, minBaths: e.target.value})} placeholder="2" />
+                      </div>
+                      <div className={styles.filterGroup}>
+                         <label>Home Type</label>
+                         <select 
+                           value={filters.category} 
+                           onChange={e => setFilters({...filters, category: e.target.value})}
+                           style={{width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #374151', backgroundColor: '#1f2937', color: 'white'}}
+                         >
+                           <option value="">Any</option>
+                           <option value="Single Family">Single Family</option>
+                           <option value="Multi Family">Multi Family</option>
+                           <option value="Condo">Condo</option>
+                           <option value="Townhouse">Townhouse</option>
+                           <option value="Apartment">Apartment</option>
+                           <option value="Commercial">Commercial</option>
+                         </select>
+                      </div>
                       <button type="submit" className={styles.applyBtn}>Apply Filters</button>
                    </form>
                 </div>
@@ -173,7 +211,7 @@ const MarketSearch = () => {
                    Price {priceFilter === 'price' ? '↑' : priceFilter === '-price' ? '↓' : ''}
                  </button>
                  <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}} onClick={() => { setFilters({...filters, minBeds: 3}); fetchProperties(); }}>3+ Beds</button>
-                 <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}} onClick={() => { setFilters({minPrice:'', maxPrice:'', minBeds:''}); setSearchQuery(''); fetchProperties({}); }}>Reset</button>
+                 <button className={styles.filterBtn} style={{fontSize:'0.75rem', padding:'4px 10px'}} onClick={() => { setFilters({minPrice:'', maxPrice:'', minBeds:'', minBaths: '', category: ''}); setSearchQuery(''); fetchProperties({}); }}>Reset</button>
              </div>
           </div>
 
@@ -183,45 +221,60 @@ const MarketSearch = () => {
              ) : properties.length === 0 ? (
                 <div style={{color: '#9ca3af', textAlign: 'center', padding: '40px'}}>No properties found in the database.</div>
              ) : (
-                properties.map(item => (
-                    <div key={item.id} className={styles.propertyCard}>
-                        <div className={styles.cardImage}>
-                            <ImageWithFallback 
-                                src={item.images && item.images[0]} 
-                                alt={item.title} 
-                                category="house" 
-                                style={{width:'100%', height:'100%', objectFit:'cover'}} 
-                            />
-                            <div className={styles.badges}>
-                                {item.latest_cap_rate && <span className={`${styles.badge} ${styles.badgeGreen}`}>{item.latest_cap_rate}% Cap</span>}
-                                {item.latest_coc && <span className={styles.badge}>{item.latest_coc}% COC</span>}
-                                {item.is_fixer_upper && <span className={`${styles.badge} ${styles.badgeGreen}`}>Fixer Upper</span>}
-                            </div>
-                            <Heart size={20} style={{position: 'absolute', top: '10px', right: '10px', color: 'white'}} />
-                        </div>
-                        <div className={styles.cardContent}>
-                            <div className={styles.priceRow}>
-                                <span className={styles.price}>${(item.price * 1).toLocaleString()}</span>
-                                <span style={{fontSize:'0.75rem', color: '#9ca3af'}}>MLS #{item.mls_number || 'N/A'}</span>
-                            </div>
-                            <span className={styles.address}>{item.location?.address || 'Address Hidden'}</span>
-                            <div className={styles.metaRow}>
-                                <span>{item.beds} <span style={{color: '#6b7280'}}>beds</span></span>
-                                <span>{item.baths} <span style={{color: '#6b7280'}}>baths</span></span>
-                                <span>{item.sqft} <span style={{color: '#6b7280'}}>sqft</span></span>
-                            </div>
-                            <div className={styles.footerRow}>
-                                <div>
-                                    <span className={styles.estRentLabel}>Asset Class</span>
-                                    <span className={styles.estRent}>{item.asset_class || 'Residential'}</span>
+                properties.map(item => {
+                    const isFavorite = user?.favorites?.some(id => String(id) === String(item.id));
+                    return (
+                        <div key={item.id} className={styles.propertyCard}>
+                            <div className={styles.cardImage}>
+                                <ImageWithFallback 
+                                    src={item.images && item.images[0]} 
+                                    alt={item.title} 
+                                    category="house" 
+                                    style={{width:'100%', height:'100%', objectFit:'cover'}} 
+                                />
+                                <div className={styles.badges}>
+                                    {item.latest_cap_rate && <span className={`${styles.badge} ${styles.badgeGreen}`}>{item.latest_cap_rate}% Cap</span>}
+                                    {item.latest_coc && <span className={styles.badge}>{item.latest_coc}% COC</span>}
+                                    {item.is_fixer_upper && <span className={`${styles.badge} ${styles.badgeGreen}`}>Fixer Upper</span>}
                                 </div>
-                                <Link to={`/analysis/${item.id}`} className={styles.analyzeLink} style={{textDecoration:'none'}}>
-                                    Analyze <ArrowRight size={14} />
-                                </Link>
+                                <Heart 
+                                    size={20} 
+                                    onClick={(e) => handleFavoriteClick(e, item.id)}
+                                    style={{
+                                        position: 'absolute', 
+                                        top: '10px', 
+                                        right: '10px', 
+                                        color: isFavorite ? '#ef4444' : 'white',
+                                        cursor: 'pointer',
+                                        zIndex: 10
+                                    }} 
+                                    fill={isFavorite ? '#ef4444' : 'none'}
+                                />
+                            </div>
+                            <div className={styles.cardContent}>
+                                <div className={styles.priceRow}>
+                                    <span className={styles.price}>${(item.price * 1).toLocaleString()}</span>
+                                    <span style={{fontSize:'0.75rem', color: '#9ca3af'}}>MLS #{item.mls_number || 'N/A'}</span>
+                                </div>
+                                <span className={styles.address}>{item.location?.address || 'Address Hidden'}</span>
+                                <div className={styles.metaRow}>
+                                    <span>{item.beds} <span style={{color: '#6b7280'}}>beds</span></span>
+                                    <span>{item.baths} <span style={{color: '#6b7280'}}>baths</span></span>
+                                    <span>{item.sqft} <span style={{color: '#6b7280'}}>sqft</span></span>
+                                </div>
+                                <div className={styles.footerRow}>
+                                    <div>
+                                        <span className={styles.estRentLabel}>Asset Class</span>
+                                        <span className={styles.estRent}>{item.asset_class || 'Residential'}</span>
+                                    </div>
+                                    <Link to={`/analysis/${item.id}`} className={styles.analyzeLink} style={{textDecoration:'none'}}>
+                                        Analyze <ArrowRight size={14} />
+                                    </Link>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))
+                    );
+                })
              )}
           </div>
       </div>

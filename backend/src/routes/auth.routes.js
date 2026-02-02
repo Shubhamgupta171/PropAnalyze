@@ -167,5 +167,6 @@ router.patch(
   uploadMiddleware.uploadUserPhoto, 
   authController.updateMe
 );
+router.patch('/toggleFavorite', authMiddleware.protect, authController.toggleFavorite);
 
 module.exports = router;

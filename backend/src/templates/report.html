@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Analysis Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2c3e50;
+            line-height: 1.6;
+            background: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .report-meta div {
+            font-size: 14px;
+        }
+
+        /* Property Overview */
+        .property-overview {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .property-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .property-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Financial Metrics */
+        .metrics-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-card.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        /* Investment Details */
+        .investment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .investment-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .investment-table th,
+        .investment-table td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .investment-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .investment-table tbody tr:hover {
+            background: #e9ecef;
+        }
+
+        /* Strategy Section */
+        .strategy-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .strategy-section h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .strategy-section p {
+            color: #856404;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .disclaimer {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        /* Positive/Negative indicators */
+        .positive {
+            color: #27ae60;
+        }
+
+        .negative {
+            color: #e74c3c;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Investment Analysis Report</h1>
+            <p class="subtitle">Professional Real Estate Investment Analysis</p>
+            <div class="report-meta">
+                <div>
+                    <strong>Report ID:</strong> {{reportId}}
+                </div>
+                <div>
+                    <strong>Generated:</strong> {{generatedDate}}
+                </div>
+                <div>
+                    <strong>Analyst:</strong> {{analystName}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Overview -->
+        <div class="property-overview">
+            <h2 class="property-title">{{propertyTitle}}</h2>
+            <p><strong>Address:</strong> {{propertyAddress}}</p>
+            
+            <div class="property-details">
+                <div class="detail-item">
+                    <div class="detail-label">Purchase Price</div>
+                    <div class="detail-value">${{propertyPrice}}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Property Type</div>
+                    <div class="detail-value">{{propertyType}}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Square Footage</div>
+                    <div class="detail-value">{{sqft}} sq ft</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Bedrooms</div>
+                    <div class="detail-value">{{beds}}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Bathrooms</div>
+                    <div class="detail-value">{{baths}}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Year Built</div>
+                    <div class="detail-value">{{yearBuilt}}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Information -->
+        <div class="strategy-section">
+            <h3>Investment Strategy: {{strategy}}</h3>
+            <p>This analysis is based on the <strong>{{strategy}}</strong> financing strategy.</p>
+        </div>
+
+        <!-- Key Financial Metrics -->
+        <div class="metrics-section">
+            <h2 class="section-title">Key Financial Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card highlight">
+                    <div class="metric-label">Cap Rate</div>
+                    <div class="metric-value">{{capRate}}%</div>
+                </div>
+                <div class="metric-card highlight">
+                    <div class="metric-label">Cash on Cash Return</div>
+                    <div class="metric-value">{{cashOnCash}}%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Monthly Cash Flow</div>
+                    <div class="metric-value {{cashFlowClass}}">${{monthlyCashFlow}}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Annual ROI</div>
+                    <div class="metric-value">{{annualROI}}%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Breakdown -->
+        <div class="metrics-section">
+            <h2 class="section-title">Investment Breakdown</h2>
+            <table class="investment-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Purchase Price</strong></td>
+                        <td>${{purchasePrice}}</td>
+                        <td>Listed property price</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Down Payment</strong></td>
+                        <td>${{downPayment}}</td>
+                        <td>{{downPaymentPercent}}% of purchase price</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Closing Costs</strong></td>
+                        <td>${{closingCosts}}</td>
+                        <td>Estimated at {{closingCostPercent}}%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Repairs/Renovation</strong></td>
+                        <td>${{repairCosts}}</td>
+                        <td>Estimated renovation budget</td>
+                    </tr>
+                    <tr style="background: #667eea; color: white; font-weight: bold;">
+                        <td><strong>Total Cash Required</strong></td>
+                        <td>${{totalCashRequired}}</td>
+                        <td>Initial investment needed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Monthly Income & Expenses -->
+        <div class="metrics-section">
+            <h2 class="section-title">Monthly Income & Expenses</h2>
+            <table class="investment-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Gross Monthly Rent</strong></td>
+                        <td class="positive">${{monthlyRent}}</td>
+                    </tr>
+                    <tr>
+                        <td>Mortgage Payment (P&I)</td>
+                        <td class="negative">-${{mortgagePayment}}</td>
+                    </tr>
+                    <tr>
+                        <td>Property Tax</td>
+                        <td class="negative">-${{propertyTax}}</td>
+                    </tr>
+                    <tr>
+                        <td>Insurance</td>
+                        <td class="negative">-${{insurance}}</td>
+                    </tr>
+                    <tr>
+                        <td>HOA Fees</td>
+                        <td class="negative">-${{hoaFees}}</td>
+                    </tr>
+                    <tr>
+                        <td>Maintenance Reserve</td>
+                        <td class="negative">-${{maintenance}}</td>
+                    </tr>
+                    <tr>
+                        <td>Vacancy Reserve</td>
+                        <td class="negative">-${{vacancy}}</td>
+                    </tr>
+                    <tr style="background: {{cashFlowBg}}; font-weight: bold;">
+                        <td><strong>Net Monthly Cash Flow</strong></td>
+                        <td class="{{cashFlowClass}}">${{monthlyCashFlow}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Investment Recommendation -->
+        <div class="metrics-section">
+            <h2 class="section-title">Investment Recommendation</h2>
+            <div style="background: {{recommendationBg}}; padding: 25px; border-radius: 10px; border-left: 5px solid {{recommendationBorder}};">
+                <h3 style="color: {{recommendationColor}}; margin-bottom: 10px;">
+                    <span class="badge {{recommendationBadge}}">{{recommendationStatus}}</span>
+                </h3>
+                <p style="font-size: 16px; color: #2c3e50;">{{recommendationText}}</p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <strong>DISCLAIMER:</strong> This report is for informational purposes only and does not constitute financial, investment, or legal advice. 
+            All calculations are estimates based on the inputs provided and actual results may vary. Please consult with qualified professionals 
+            before making any investment decisions. PropAnalyze and its affiliates are not responsible for any investment decisions made based on this report.
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>PropAnalyze</strong> - Professional Real Estate Investment Platform</p>
+            <p>© 2026 PropAnalyze. All rights reserved.</p>
+            <p style="margin-top: 10px;">Generated on {{generatedDate}}</p>
+        </div>
+    </div>
+</body>
+</html>

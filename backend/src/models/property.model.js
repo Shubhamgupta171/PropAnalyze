@@ -69,6 +69,19 @@ class Property {
       values.push(`%${queryOptions.search}%`);
     }
 
+    // IDs Filter (for Favorites)
+    if (queryOptions.ids) {
+      // Split comma-separated IDs
+      const ids = queryOptions.ids.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      if (ids.length > 0) {
+          conditions.push(`p.id = ANY($${values.length + 1})`);
+          values.push(ids);
+      } else {
+          // If ids param provided but empty or invalid, return no results
+          conditions.push('1=0');
+      }
+    }
+
     // Apply WHERE clause if conditions exist
     if (conditions.length > 0) {
       const whereClause = ' WHERE ' + conditions.join(' AND ');

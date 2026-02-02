@@ -76,10 +76,26 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       throw err;
     }
+
+  };
+
+  const togglePropertyFavorite = async (propertyId) => {
+    try {
+      const response = await authService.toggleFavorite(propertyId);
+      // Update local user state immediately
+      setUser((prevUser) => ({
+        ...prevUser,
+        favorites: response.data.favorites
+      }));
+      return response.data.favorites;
+    } catch (err) {
+      console.error("Failed to toggle favorite", err);
+      // Optional: Flash error message
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, signup, logout, updateMe }}>
+    <AuthContext.Provider value={{ user, loading, error, login, signup, logout, updateMe, togglePropertyFavorite }}>
       {children}
     </AuthContext.Provider>
   );

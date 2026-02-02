@@ -15,6 +15,9 @@ const { swaggerUi, specs } = require('./config/swagger');
 const app = express();
 
 // 1) GLOBAL MIDDLEWARES
+// Implement CORS
+app.use(cors());
+
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 // Set security HTTP headers
@@ -28,9 +31,6 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again in an hour!'
 });
 app.use('/api', limiter);
-
-// Implement CORS
-app.use(cors());
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
