@@ -1,210 +1,330 @@
-# PropAnalyze Backend
+# PropAnalyze Backend – Master Handover Document
 
-## Overview
+> **Status**: Handover Ready  
+> **Version**: 1.0.0  
+> **Last Updated**: 2026-02-05  
 
-The PropAnalyze Backend is a robust RESTful API built with Node.js and Express. It serves as the core processing unit for the PropAnalyze application, handling data persistence, business logic, and external integrations.
+This document serves as the **Single Source of Truth** for the PropAnalyze Backend. It is designed to allow any developer to understand, run, and extend the system without requiring prior context.
 
-## Architecture
+---
 
-The application follows a **Layered Architecture** to ensure separation of concerns and maintainability, optimized for performance using raw SQL:
+## 1. Product Overview
 
-1.  **Routes Layer** (`src/routes`): Defines API endpoints and routes requests to the appropriate controllers.
-2.  **Controller Layer** (`src/controllers`): Handles incoming HTTP requests, validates input, and orchestrates the response.
-3.  **Service Layer** (`src/services`): Contains the core business logic (ROI calculations, etc.).
-4.  **Data Access Layer** (`src/models`): Represents the data structure and handles database interactions using **Raw SQL** (no ORM).
-5.  **Utils & Middlewares**: Shared utilities and middleware functions (e.g., error handling, logging, Cloudinary uploads).
+### **Product Purpose**
+PropAnalyze is a **Real Estate Investment Analysis Platform** that empowers investors and agents to find, underwrite, and report on rental properties. It automates financial modeling (ROI, Cap Rate) and provides geospatial intelligence.
 
-## Tech Stack
+### **Main Features**
+- **Property Listing & Search**: Advanced filtering by price, metrics, and geolocation.
+- **Investment Analysis**: Real-time calculation of Cash-on-Cash Return, NOI, and Max Allowable Offer.
+- **Geospatial Intelligence**: Radius-based search (e.g., "Properties within 50 miles of NYC").
+- **Portfolio Management**: Grouping properties into portfolios for aggregate tracking.
+- **Reporting Engine**: Automated PDF generation for investment summaries (Pro Feature).
 
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: PostgreSQL (via `pg` driver)
-- **Image Hosting**: Cloudinary
-- **Environment Management**: dotenv
-- **Security**: Helmet, CORS
-- **Logging**: Morgan
+### **User Roles**
+| Role | Permissions |
+| :--- | :--- |
+| **User** | Can search properties, run analyses, save portfolios. |
+| **Agent** | Can upload/manage their own property listings. |
+| **Admin** | Full system access (manage all users, properties, system settings). |
 
-## Directory Structure
+### **Supported Platforms**
+- **Web**: Primary React Application.
+- **Mobile**: Responsive web design (no native app currently).
 
-```
-backend/
-├── src/
-│   ├── config/         # Configuration files (DB connection pool, Cloudinary)
-│   ├── controllers/    # Request handlers
-│   ├── db/             # SQL Schema files
-│   ├── middlewares/    # Custom middlewares (Error handling, Auth, Uploads)
-│   ├── models/         # Raw SQL models (Data Access Layer)
-│   ├── routes/         # API route definitions
-│   ├── services/       # Business logic services
-│   └── utils/          # Utility classes/functions (AppError, APIFeatures)
-├── .env                # Environment variables
-├── setup_db.js         # Script to initialize PostgreSQL tables
-├── server.js           # Server entry point
-└── package.json        # Dependencies and scripts
-```
+---
 
-## Prerequisites
+## 2. Architecture Overview
 
-- Node.js (v18+ recommended)
-- npm or yarn
-- PostgreSQL instance (Local or Remote)
+### **System Architecture**
+The backend follows a **Layered Monolithic Architecture** using Node.js and Express.
 
-## Installation & Setup
-
-1.  **Clone the repository**:
-
-    ```bash
-    git clone <repository-url>
-    cd PropAnalyze/backend
-    ```
-
-2.  **Install Dependencies**:
-
-    ```bash
-    npm install
-    ```
-
-3.  **Environment Configuration**:
-    Create a `.env` file in the root `backend` directory:
-
-    ```env
-    PORT=5000
-    DATABASE_URL=postgres://username:password@localhost:5432/propanalyze
-    NODE_ENV=development
-    CLOUDINARY_CLOUD_NAME=your_name
-    CLOUDINARY_API_KEY=your_key
-    CLOUDINARY_API_SECRET=your_secret
-    ```
-
-4.  **Database Setup**:
-    Initialize your PostgreSQL tables using the setup script:
-    ```bash
-    node setup_db.js
-    ```
-
-## Running the Application
-
-### Development Mode
-
-```bash
-npm run dev
+```mermaid
+graph TD
+    Client[React Frontend] -->|REST API| LoadBalancer[Nginx / Cloud LB]
+    LoadBalancer --> API[Node.js Express Server]
+    API -->|Auth| JwtStrategy[JWT Auth Guard]
+    API -->|Logic| Controllers[Controller Layer]
+    Controllers -->|Business Rules| Services[Service Layer]
+    Services -->|Data| DB[(PostgreSQL Database)]
+    Services -->|Files| Cloudinary[Cloudinary Storage]
 ```
 
-### Production Mode
+### **Tech Stack**
+- **Runtime**: Node.js v18+
+- **Framework**: Express.js (v4.x)
+- **Database**: PostgreSQL (v14+)
+- **ORM/Driver**: `pg` (Raw SQL for performance/control)
+- **Authentication**: JWT (JSON Web Tokens)
+- **File Storage**: Cloudinary (Images & PDFs)
+- **PDF Engine**: `html-pdf-node`
 
-```bash
-npm start
+### **Third-Party Integrations**
+- **Cloudinary**: Image and PDF storage.
+- **Mapbox/Google Maps** (Frontend only, Backend stores coordinates).
+
+---
+
+## 3. Environment Information
+
+### **API Base URLs**
+| Environment | Base URL | Status |
+| :--- | :--- | :--- |
+| **Development** | `http://localhost:5000/api/v1` | Active |
+| **Staging** | `https://staging-api.propanalyze.com/api/v1` | TBD |
+| **Production** | `https://api.propanalyze.com/api/v1` | TBD |
+
+### **Required Headers**
+All protected endpoints require:
+```http
+Content-Type: application/json
+Authorization: Bearer <your_jwt_token>
 ```
 
-## API Endpoints
+### **CORS Configuration**
+- Currently set to allow **ALL** origins (`cors()`) for development.
+- **Production TODO**: Restrict specific domains in `app.js`.
 
-The API is versioned at `/api/v1`. Key resources include:
+---
 
-- **Users/Auth**: `/api/v1/users` - Authentication, profiles, and subscription plans.
-- **Properties**: `/api/v1/properties` - Real estate listings with advanced **Geospatial Search** (`/properties-within`) and specialized **seeding scripts** for diverse testing.
-- **Analysis**: `/api/v1/analysis` - Investment underwriting and Max Offer logic.
-- **Health Check**: `/api/v1/health` - Application health status.
+## 4. Authentication & Authorization
 
-## Error Handling
+### **Auth Strategy**
+- **Type**: JWT (Stateless)
+- **Token Expiry**: 90 Days (Configurable in `.env`)
+- **Refresh Token**: Not currently implemented (Long-lived access tokens used).
 
-The application uses a centralized error handling mechanism. All errors are caught by the global error handler middleware (`src/middlewares/error.middleware.js`), ensuring consistent JSON error responses.
+### **Endpoints**
+- **Login**: `POST /users/login` -> Returns `{ token, user }`
+- **Signup**: `POST /users/signup` -> Returns `{ token, user }`
+- **Profile**: `GET /users/me` -> Returns User Profile
 
-## Development Progress
+### **Permission Matrix**
+| Action | User | Agent | Admin |
+| :--- | :---: | :---: | :---: |
+| View Properties | ✅ | ✅ | ✅ |
+| Run Analysis | ✅ | ✅ | ✅ |
+| Create Property | ❌ | ✅ | ✅ |
+| Edit Own Property | ❌ | ✅ | ✅ |
+| Delete Any Property | ❌ | ❌ | ✅ |
+| Generate PDFs | ✅ | ✅ | ✅ |
+| Manage Users | ❌ | ❌ | ✅ |
 
-### Day 6: File Uploads & Media Handling ✅
+---
 
-#### Goal
+## 5. API Documentation
 
-Enable image uploads for properties so that each listing can have real photo galleries.
+We provide complete documentation via Swagger/OpenAPI.
 
-#### Implementation
+- **Swagger UI**: `http://localhost:5000/api-docs` (Run server to view)
+- **Postman Collection**: [Download Link / File in Repo]
 
-##### 1. File Upload Infrastructure
+### Key Resource Overview
+> **Note**: This is a summary. Refer to Swagger for full details.
 
-- **Cloudinary Setup** (`src/config/cloudinary.config.js`):
-  - Connects to Cloudinary cloud for professional image hosting.
-- **Multer Cloudinary Storage** (`src/middlewares/upload.middleware.js`):
-  - Configured to stream files directly to Cloudinary.
-  - Filters files to ensure only images are uploaded.
-- **Image Accessibility**:
-  - Images are accessible via secure Cloudinary HTTPS URLs.
-  - Stored in the database as an array of strings in the `images` field.
+#### **Properties**
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/properties` | List properties (supports filtering/sorting) |
+| `GET` | `/properties/:id` | Get property details |
+| `POST` | `/properties` | Create property (Agent only) |
+| `PATCH` | `/properties/:id` | Update property |
 
-##### 2. API Updates
+#### **Analysis**
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/analysis/roi/:propertyId` | Calculate ROI/Cap Rate |
+| `GET` | `/analysis/max-offer/:propertyId` | Calculate max offer price for target return |
 
-- **Create Property**: `POST /properties`
-  - Accepts `multipart/form-data`.
-  - Field: `images` (Max 10 files).
-- **Update User Profile**: `PATCH /users/updateMe`
-  - Accepts `multipart/form-data`.
-  - Field: `photo`.
+#### **Reports**
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/reports/generate` | Generate PDF report for a property |
 
-##### 3. Testing with Postman
+---
 
-1. **Headers**:
-   - `Authorization: Bearer <token>`
+## 6. API Naming & Conventions
 
-2. **Body**:
-   - Type: `form-data`
-   - Field `images`: Select multiple image files.
+- **URL Paths**: `kebab-case` and plural (e.g., `/properties`, `/max-offer`).
+- **JSON Response**: `camelCase` (e.g., `maxAllowableOffer`).
+- **Database Columns**: `snake_case` (e.g., `created_at`, `agent_id`).
+- **Dates**: ISO 8601 Strings (`2023-10-27T10:00:00Z`).
+- **Nulls**: Null fields are returned as `null`, not omitted.
 
-3. **Verify**:
-   - Check Response: `images` array should contain full Cloudinary URLs.
+---
 
-#### Key Points
+## 7. Sample API Requests & Responses
 
-- Switched from local storage to **Cloudinary** to ensure images persist in production and load faster via global CDN.
-- Images are securely uploaded and referenced via HTTPS URLs.
+### **Sample Error Response**
+```json
+{
+  "status": "fail",
+  "message": "Duplicate field value: email. Please use another value!",
+  "error": { ...stack trace in dev... }
+}
+```
 
-### Day 7: Analysis Engine Logic ✅
+### **Sample Success Response (Analysis)**
+```json
+{
+  "status": "success",
+  "data": {
+    "metrics": {
+      "noi": 24000,
+      "capRate": 6.8,
+      "cashOnCash": 9.2,
+      "monthlyCashFlow": 450
+    }
+  }
+}
+```
 
-#### Goal
-Implement advanced financial modeling and market aggregation using Raw SQL to give users deep investment insights, and fully integrate these insights into the Property Analysis UI.
+---
 
-#### Implementation
+## 8. Data Models / Database Schema
 
-##### 1. Investment Underwriting Engine
-- **ROI Calculator** (`src/services/analysis.service.js`):
-  - Advanced math for NOI, Cap Rate, and Cash-on-Cash.
-  - Granular expense breakdown (Taxes, Insurance, Management, Maintenance).
-  - Dynamic what-if scenarios supporting user-driven overrides.
+### **1. Users Table**
+- **id**: UUID (PK)
+- **email**: VARCHAR (Unique)
+- **role**: ENUM ('user', 'agent', 'admin')
+- **favorites**: JSONB (Array of Property IDs)
 
-##### 2. Max Allowable Offer (MAO) Solver
-- **Binary Search Solver**:
-  - Automatically calculates the maximum price an investor should pay to hit a target CoC percentage.
+### **2. Properties Table**
+- **id**: UUID (PK)
+- **agent_id**: UUID (FK -> Users)
+- **location**: JSONB (`{ "address": "...", "coordinates": [lat, lng] }`)
+- **features**: JSONB (amenities, etc.)
 
-##### 3. Market Aggregation
-- **SQL Benchmark Stats**:
-  - Uses optimized SQL to deliver global market averages and benchmarks.
+### **3. Analyses Table**
+- Stores saved calculation snapshots per user/property.
 
-##### 4. Frontend Integration
-- **Real-time UI**: Full integration with `PropertyAnalysis.jsx` using a dedicated frontend service.
-- **Visualizations**: Added Donut charts and expense breakdowns for better data consumption.
+### **4. Reports Table**
+- Tracks generated PDF URLs and link to Cloudinary.
 
-#### Verification
-- Verified logic with `curl` API tests.
-- Manually tested real-time UI updates on property input changes.
+*(See `src/db/schema.sql` or `setup_db.js` for exact DDL)*
 
-**Day 7 Task Status: COMPLETED ✅**
+---
 
-### Day 8: User Dashboard & History ✅
+## 9. Pagination, Filtering & Sorting
 
-#### Goal
-Implement persistent analysis history to allow users to save and revisit their investment underwriting models.
+### **Pagination**
+- **Method**: `page` and `limit` query parameters.
+- **Defaults**: `page=1`, `limit=20`.
+- **Response**: Includes `total`, `page`, `totalPages`.
 
-#### Implementation
-- **Analysis History Service**: Created logic to save property-specific input assumptions and calculated metrics.
-- **Persistent Storage**: Saved to `analyses` table in PostgreSQL.
-- **Frontend Integration**: Updated the History tab and added a "Save to History" button on the analysis page.
+### **Filtering**
+- **Exact Match**: `?category=Residential`
+- **Range**: `?price[gte]=100000&price[lte]=500000`
+- **Geo**: `/properties-within/50/center/34.05,-118.25/unit/mi`
 
-### Day 9: Portfolios & Reports ✅
+### **Sorting**
+- **Param**: `sort`
+- **Values**: `price`, `-price` (desc), `newest`, `oldest`.
 
-#### Goal
-Enable portfolio management and professional report tracking.
+---
 
-#### Implementation
-- **Portfolio Service**: Created logic for many-to-many property-portfolio associations.
-- **Report Tracking**: Built a system to log generated PDF reports with Cloudinary links.
-- **Dynamic UI**: Connected the Reports page to the live backend database.
+## 10. File Uploads
 
-**Project Status: Ready for Production Hardening (Day 10) 🚀**
+- **Endpoint**: `POST /properties` (Multipart/Form-Data)
+- **Middleware**: `multer`
+- **Storage**: **Cloudinary** (Auto-optimization applied).
+- **Max Size**: 5MB per image (configured in Multer).
+- **Format**: JPG, PNG.
+
+---
+
+## 11. Error Handling System
+
+All errors follow a standardized JSON format handled by `middlewares/error.middleware.js`.
+
+- **400**: Bad Request (Validation failed).
+- **401**: Unauthorized (Invalid/Missing Token).
+- **403**: Forbidden (Role mismatch).
+- **404**: Not Found.
+- **500**: Internal Server Error.
+
+---
+
+## 12. Business Logic Highlights
+
+### **ROI Calculation**
+Centralized in `AnalysisService`.
+- **NOI** = (Gross Rent - Vacancy - Expenses)
+- **Cap Rate** = (NOI / Purchase Price) * 100
+- **Cash on Cash** = (Annual Cash Flow / Total Cash Invested) * 100
+
+### **Max Offer Algorithm**
+Uses a **Binary Search** approach to find the exact purchase price that yields the user's target CoC% within a 0.01% tolerance.
+
+---
+
+## 13. Security Considerations
+
+- **Rate Limiting**: Limited to 100 requests per hour per IP (`express-rate-limit`).
+- **Helmet**: secure HTTP headers (partially disabled for dev content policies).
+- **Password Hashing**: `bcryptjs` with salt round 12.
+- **SQL Injection**: Prevented via Parameterized Queries (`pg`).
+
+---
+
+## 14. Performance & Limits
+
+- **Rate Limit**: 100 req/hour (Middleware).
+- **Pagination Limit**: Max 100 items per page.
+- **PDF Generation**: Computationally expensive; async processing recommended for high load (current: synchronous).
+
+---
+
+## 15. Feature Completion Status
+
+| Feature | Status | Notes |
+| :--- | :---: | :--- |
+| **User Auth** | ✅ | Complete |
+| **Property CRUD** | ✅ | Complete |
+| **Geo Search** | ✅ | Radius search working |
+| **Analysis Engine** | ✅ | ROI/Max Offer working |
+| **PDF Reporting** | ✅ | Integrated with Cloudinary |
+| **Email Notifications** | ❌ | Planned |
+| **Payment Integration** | ❌ | Planned (Stripe) |
+
+---
+
+## 16. Deployment & DevOps
+
+### **Env Variables (Non-Secret)**
+`NODE_ENV`, `PORT`.
+
+### **Secrets (Must Set in Prod)**
+`DATABASE_URL`, `JWT_SECRET`, `CLOUDINARY_*`.
+
+### **Process**
+1.  Check out code.
+2.  `npm install --production`.
+3.  Run migrations: `node setup_db.js`.
+4.  Start: `npm start` (or `pm2 start server.js`).
+
+---
+
+## 17. Handover & Support
+
+**Primary Contact**: Development Team (dev@propanalyze.com)  
+**Bug Reporting**: Submit Issue in GitHub Repository.  
+
+### **Client-Friendly Summary**
+"PropAnalyze is a digital analyst for real estate. It takes raw property data, combines it with your financial assumptions, and instantly tells you if a deal makes money. It's like having a financial advisor in your pocket for every property you look at."
+
+---
+
+## 📦 Final Delivery Package
+
+This repository contains:
+1.  **Source Code**: Full Backend Node.js source.
+2.  **API Docs**: Swagger UI at `/api-docs`.
+3.  **Database Scripts**: SQL schema for setup.
+4.  **This Document**: Your map to the system.
+
+**Next Steps for Team**:
+- [ ] Set up Staging Environment.
+- [ ] Review `TODO` comments in code.
+- [ ] Configure specialized CORS domain list for production.
+
+---

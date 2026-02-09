@@ -3,7 +3,22 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
 exports.getAllProperties = catchAsync(async (req, res, next) => {
-  const { properties, total, page, limit, totalPages } = await propertyService.getAllProperties(req.query);
+  // Map Postman/Standard Query Params to Service Params
+  const query = { ...req.query };
+
+  // 1. Price Filtering (price[gte], price[lt])
+  if (query.price) {
+    if (query.price.gte) query.minPrice = query.price.gte;
+    if (query.price.gt) query.minPrice = query.price.gt;
+    if (query.price.lte) query.maxPrice = query.price.lte;
+    if (query.price.lt) query.maxPrice = query.price.lt;
+  }
+
+  // 2. Beds/Baths Filtering
+  if (query.beds) query.minBeds = query.beds;
+  if (query.baths) query.minBaths = query.baths;
+
+  const { properties, total, page, limit, totalPages } = await propertyService.getAllProperties(query);
 
   res.status(200).json({
     status: 'success',
