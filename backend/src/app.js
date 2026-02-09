@@ -51,6 +51,24 @@ app.use('/api/v1/analysis', analysisRouter);
 app.use('/api/v1/portfolios', portfolioRouter);
 app.use('/api/v1/reports', reportRouter);
 
+// Root route - API Welcome
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Welcome to PropAnalyze API',
+    version: '1.0.0',
+    documentation: '/api-docs',
+    endpoints: {
+      health: '/api/v1/health',
+      auth: '/api/v1/users',
+      properties: '/api/v1/properties',
+      analysis: '/api/v1/analysis',
+      portfolios: '/api/v1/portfolios',
+      reports: '/api/v1/reports'
+    }
+  });
+});
+
 // Check health
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({
