@@ -41,9 +41,13 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  if (true) {
-    sendErrorDev(err, res);
-  } else {
-    sendErrorProd(err, res);
-  }
+  console.error('SERVER ERROR 💥:', err);
+  
+  // Force detailed error response for debugging
+  res.status(err.statusCode).json({
+    status: err.status,
+    error: err,
+    message: err.message,
+    stack: err.stack
+  });
 };
