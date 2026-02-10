@@ -78,7 +78,7 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 // 3) UNHANDLED ROUTES
-app.all(/.*/, (req, res, next) => {
+app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
