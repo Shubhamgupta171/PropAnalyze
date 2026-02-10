@@ -3,8 +3,12 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// Use POSTGRES_URL (Vercel standard) or fall back to DATABASE_URL (Local)
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 pool.on('connect', () => {
