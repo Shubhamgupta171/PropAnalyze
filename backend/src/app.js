@@ -14,6 +14,9 @@ const { swaggerUi, specs } = require('./config/swagger');
 
 const app = express();
 
+// Trust proxy for Vercel/Heroku
+app.set('trust proxy', 1);
+
 // 1) GLOBAL MIDDLEWARES
 // Implement CORS
 app.use(cors());

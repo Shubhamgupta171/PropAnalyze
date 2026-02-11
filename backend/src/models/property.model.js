@@ -72,9 +72,9 @@ class Property {
     // IDs Filter (for Favorites)
     if (queryOptions.ids) {
       // Split comma-separated IDs
-      const ids = queryOptions.ids.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      const ids = queryOptions.ids.split(',').map(id => id.trim()).filter(id => id.length > 0);
       if (ids.length > 0) {
-          conditions.push(`p.id = ANY($${values.length + 1})`);
+          conditions.push(`p.id::text = ANY($${values.length + 1})`);
           values.push(ids);
       } else {
           // If ids param provided but empty or invalid, return no results

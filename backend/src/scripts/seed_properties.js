@@ -1,7 +1,18 @@
 const db = require('../config/db');
 const { randomUUID } = require('crypto');
 
-const agentId = 'bcdb8c9a-343b-498c-b4e7-aa90f0c7ace1'; 
+const getAgentId = async () => {
+  const { rows } = await db.query('SELECT id FROM users LIMIT 1');
+  if (rows.length > 0) return rows[0].id;
+  
+  // Create a default user if none exists
+  const newUser = await db.query(`
+    INSERT INTO users (name, email, password, role)
+    VALUES ('Demo Agent', 'agent@example.com', '$2a$12$PcXS.h/cK.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S.S', 'agent')
+    RETURNING id
+  `);
+  return newUser.rows[0].id;
+}; 
 
 const properties = [
   {
@@ -307,6 +318,7 @@ async function seed() {
   try {
     console.log('Clearing existing properties...');
     await db.query('DELETE FROM properties');
+    const agentId = await getAgentId();
     
     for (const p of properties) {
       const id = randomUUID();
