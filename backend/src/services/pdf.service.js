@@ -37,26 +37,46 @@ class PDFService {
       htmlTemplate = this.injectDataIntoTemplate(htmlTemplate, templateData);
 
       // Launch Browser
-      if (process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.VERCEL || process.env.NODE_ENV === 'production') {
-        // Configure Sparticuz Chromium
-        chromium.setHeadlessMode = true;
-        chromium.setGraphicsMode = false;
+      // Launch Browser
+      console.log('Environment check:', {
+        AWS_LAMBDA: !!process.env.AWS_LAMBDA_FUNCTION_VERSION,
+        VERCEL: !!process.env.VERCEL,
+        NODE_ENV: process.env.NODE_ENV
+      });
 
-        browser = await puppeteer.launch({
-          args: [
-            ...chromium.args,
-            '--disable-gpu',
-            '--disable-dev-shm-usage',
-            '--disable-setuid-sandbox',
-            '--no-sandbox',
-            '--no-zygote'
-          ],
-          defaultViewport: chromium.defaultViewport,
-          executablePath: await chromium.executablePath(),
-          headless: chromium.headless,
-          ignoreHTTPSErrors: true,
-        });
+      if (process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.VERCEL || process.env.NODE_ENV === 'production') {
+        // Configure Sparticuz Chromium for Vercel
+        console.log('Configuring Puppeteer for Vercel/Production...');
+        
+        try {
+          // Additional logging for debugging
+          const executablePath = await chromium.executablePath();
+          console.log('Chromium executable path:', executablePath);
+
+          browser = await puppeteer.launch({
+            args: [
+              ...chromium.args,
+              '--disable-gpu',
+              '--disable-dev-shm-usage',
+              '--disable-setuid-sandbox',
+              '--no-sandbox',
+              '--no-zygote',
+              '--single-process', // Sometimes helps in serverless
+              '--disable-extensions' 
+            ],
+            defaultViewport: chromium.defaultViewport,
+            executablePath: executablePath,
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
+          });
+          console.log('Browser launched successfully');
+        } catch (launchError) {
+          console.error('Failed to launch browser in production:', launchError);
+          // Fallback or re-throw
+          throw launchError;
+        }
       } else {
+        console.log('Launching local Puppeteer...');
         browser = await puppeteer.launch({
           headless: 'new',
           args: ['--no-sandbox', '--disable-setuid-sandbox']
