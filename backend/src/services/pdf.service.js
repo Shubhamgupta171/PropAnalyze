@@ -1,14 +1,30 @@
-const htmlPdf = require('html-pdf-node');
 const fs = require('fs').promises;
 const path = require('path');
 const { cloudinary } = require('../config/cloudinary.config');
 
+let chromium = {};
+let puppeteer = {};
+
+// Verify environment
+if (process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  // Vercel / Lambda environment
+  chromium = require('@sparticuz/chromium');
+  puppeteer = require('puppeteer-core');
+} else {
+  // Local development
+  try {
+    puppeteer = require('puppeteer');
+  } catch (e) {
+    console.warn('Puppeteer not found, falling back to puppeteer-core or failing.');
+  }
+}
 
 class PDFService {
   /**
    * Generate PDF from HTML template with data injection
    */
   async generateReport(propertyData, analysisData, userData) {
+    let browser = null;
     try {
       // Read HTML template
       const templatePath = path.join(__dirname, '../templates/report.html');
@@ -20,8 +36,29 @@ class PDFService {
       // Replace placeholders in template
       htmlTemplate = this.injectDataIntoTemplate(htmlTemplate, templateData);
 
-      // PDF options
-      const options = {
+      // Launch Browser
+      if (process.env.AWS_LAMBDA_FUNCTION_VERSION || process.env.VERCEL || process.env.NODE_ENV === 'production') {
+        browser = await puppeteer.launch({
+          args: chromium.args,
+          defaultViewport: chromium.defaultViewport,
+          executablePath: await chromium.executablePath(),
+          headless: chromium.headless,
+          ignoreHTTPSErrors: true,
+        });
+      } else {
+        browser = await puppeteer.launch({
+          headless: 'new',
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+      }
+
+      const page = await browser.newPage();
+      
+      // Set content and wait for network idle to ensure fonts/CSS load
+      await page.setContent(htmlTemplate, { waitUntil: 'networkidle0' });
+
+      // Generate PDF
+      const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
         margin: {
@@ -30,16 +67,16 @@ class PDFService {
           bottom: '20px',
           left: '20px'
         }
-      };
+      });
 
-      // Generate PDF
-      const file = { content: htmlTemplate };
-      const pdfBuffer = await htmlPdf.generatePdf(file, options);
+      await browser.close();
+      browser = null;
 
       return pdfBuffer;
     } catch (error) {
       console.error('PDF Generation Error:', error);
-      throw new Error('Failed to generate PDF report');
+      if (browser) await browser.close();
+      throw new Error('Failed to generate PDF report: ' + error.message);
     }
   }
 
